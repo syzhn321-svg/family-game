@@ -1,0 +1,26 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Build outputs and exported binaries
+build/
+builds/
+*.apk
+*.aab
+*.exe
+*.zip
+*.pck
+
+# Temporary scratch & test artifacts
+scratch/
+*.log
+*.TMP
+*.tmp
+~*
+
+# Sensitive export keys/credentials (if any)
+*.keystore
+
+# System files
+.DS_Store
+Thumbs.db

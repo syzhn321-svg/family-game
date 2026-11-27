@@ -1,0 +1,533 @@
+[gd_scene format=3 uid="uid://cpyyuesunirb3"]
+
+[ext_resource type="Script" uid="uid://ux55nllysv7s" path="res://scripts/player.gd" id="1_3vyb7"]
+[ext_resource type="Shader" uid="uid://gjbpknope2db" path="res://shaders/flashlight_beam.gdshader" id="2_beam_shader"]
+[ext_resource type="PackedScene" uid="uid://4fr3ss1redl5" path="res://scenes/mobile_controls.tscn" id="3_mobile"]
+[ext_resource type="Texture2D" path="res://assets/ui/crosshair_ring.png" id="4_ring"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_jyhfs"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_sugp2"]
+height = 1.2
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_player"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath("nek:rotation")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath("nek/head:rotation")
+properties/3/spawn = true
+properties/3/replication_mode = 1
+properties/4/path = NodePath(".:crouching")
+properties/4/spawn = true
+properties/4/replication_mode = 1
+properties/5/path = NodePath(".:noise_level")
+properties/5/spawn = true
+properties/5/replication_mode = 1
+properties/6/path = NodePath(".:player_name")
+properties/6/spawn = true
+properties/6/replication_mode = 1
+properties/7/path = NodePath(".:flashlight_is_on")
+properties/7/spawn = true
+properties/7/replication_mode = 1
+properties/8/path = NodePath(".:flashlight_energy")
+properties/8/spawn = true
+properties/8/replication_mode = 1
+properties/9/path = NodePath(".:flashlight_mode")
+properties/9/spawn = true
+properties/9/replication_mode = 2
+properties/10/path = NodePath(".:character_name")
+properties/10/spawn = true
+properties/10/replication_mode = 2
+properties/11/path = NodePath(".:is_cranking")
+properties/11/spawn = true
+properties/11/replication_mode = 1
+properties/12/path = NodePath(".:crank_reach_blend")
+properties/12/spawn = true
+properties/12/replication_mode = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_meter_panel"]
+bg_color = Color(0.05, 0.07, 0.1, 0.82)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.35, 0.45, 0.6)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 5.0
+content_margin_top = 8.0
+content_margin_right = 5.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_meter_bg"]
+bg_color = Color(0.08, 0.1, 0.14, 0.9)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_meter_fill"]
+bg_color = Color(0.4, 0.85, 0.6, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_player"]
+albedo_color = Color(0.68, 0.72, 0.8, 1)
+roughness = 0.85
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+material = SubResource("StandardMaterial3D_player")
+radius = 0.35
+height = 1.5
+
+[sub_resource type="SphereMesh" id="SphereMesh_head"]
+material = SubResource("StandardMaterial3D_player")
+radius = 0.25
+height = 0.5
+
+[sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_voice"]
+mix_rate = 22050.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_torch"]
+albedo_color = Color(0.12, 0.13, 0.15, 1)
+metallic = 0.8
+roughness = 0.35
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_torch"]
+material = SubResource("StandardMaterial3D_torch")
+top_radius = 0.035
+bottom_radius = 0.035
+height = 0.22
+radial_segments = 16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lantern_frame"]
+albedo_color = Color(0.18, 0.15, 0.11, 1)
+metallic = 0.8
+roughness = 0.4
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_lantern_frame"]
+material = SubResource("StandardMaterial3D_lantern_frame")
+top_radius = 0.045
+bottom_radius = 0.05
+height = 0.16
+radial_segments = 12
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lantern_glass"]
+transparency = 1
+albedo_color = Color(1, 0.85, 0.5, 0.4)
+emission_enabled = true
+emission = Color(1, 0.8, 0.45, 1)
+emission_energy_multiplier = 0.8
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_lantern_glass"]
+material = SubResource("StandardMaterial3D_lantern_glass")
+top_radius = 0.038
+bottom_radius = 0.038
+height = 0.09
+radial_segments = 12
+
+[sub_resource type="Gradient" id="Gradient_glow"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_glow"]
+gradient = SubResource("Gradient_glow")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_glow"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+albedo_color = Color(1, 0.95, 0.85, 0.75)
+albedo_texture = SubResource("GradientTexture2D_glow")
+billboard_mode = 1
+billboard_keep_scale = true
+render_priority = 2
+distance_fade_mode = 2
+distance_fade_min_distance = 0.35
+distance_fade_max_distance = 0.70
+
+[sub_resource type="QuadMesh" id="QuadMesh_glow"]
+material = SubResource("StandardMaterial3D_glow")
+size = Vector2(0.16, 0.16)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_beam"]
+render_priority = 0
+shader = ExtResource("2_beam_shader")
+shader_parameter/beam_color = Color(1, 0.96, 0.88, 0.05)
+shader_parameter/beam_length = 8.0
+shader_parameter/max_beam_dist = 8.0
+shader_parameter/fresnel_power = 2.2
+shader_parameter/beam_energy = 1.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_beam"]
+material = SubResource("ShaderMaterial_beam")
+top_radius = 0.65
+bottom_radius = 0.025
+height = 8.0
+radial_segments = 32
+rings = 6
+cap_top = false
+cap_bottom = false
+
+[sub_resource type="Animation" id="Animation_jyhfs"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Camera3D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Camera3D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_tbgi4"]
+_data = {
+&"RESET": SubResource("Animation_jyhfs")
+}
+
+[sub_resource type="AudioStreamMicrophone" id="AudioStreamMicrophone_rec"]
+
+[node name="player" type="CharacterBody3D" unique_id=1421722577]
+script = ExtResource("1_3vyb7")
+
+[node name="standing_collision_shape" type="CollisionShape3D" parent="." unique_id=1971555326]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+shape = SubResource("CapsuleShape3D_jyhfs")
+
+[node name="crouching_collision_shape" type="CollisionShape3D" parent="." unique_id=1818206567]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+shape = SubResource("CapsuleShape3D_sugp2")
+disabled = true
+
+[node name="RayCast3D" type="RayCast3D" parent="." unique_id=1283235823]
+target_position = Vector3(0, 2, 0)
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=2010941651]
+replication_config = SubResource("SceneReplicationConfig_player")
+
+[node name="NameTag" type="Label3D" parent="." unique_id=838266580]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.84, 0)
+pixel_size = 0.0028
+billboard = 1
+fixed_size = false
+no_depth_test = false
+modulate = Color(0.9, 0.95, 1, 0.9)
+outline_modulate = Color(0, 0, 0, 0.85)
+text = "Player"
+font_size = 15
+outline_size = 3
+
+[node name="visuals" type="Node3D" parent="." unique_id=1363133756]
+
+[node name="body_mesh" type="MeshInstance3D" parent="visuals" unique_id=1883966038]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+mesh = SubResource("CapsuleMesh_body")
+
+[node name="head_mesh" type="MeshInstance3D" parent="visuals" unique_id=96314544]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+mesh = SubResource("SphereMesh_head")
+
+[node name="nek" type="Node3D" parent="." unique_id=81574200]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
+
+[node name="head" type="Node3D" parent="nek" unique_id=1102696941]
+
+[node name="VoicePlayer3D" type="AudioStreamPlayer3D" parent="nek/head" unique_id=2027556348]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.15)
+stream = SubResource("AudioStreamGenerator_voice")
+attenuation_model = 1
+unit_size = 2.5
+max_distance = 22.0
+
+[node name="eyes" type="Node3D" parent="nek/head" unique_id=20264072]
+
+[node name="Camera3D" type="Camera3D" parent="nek/head/eyes" unique_id=200664544]
+
+[node name="TorchBody" type="MeshInstance3D" parent="nek/head/eyes/Camera3D" unique_id=1879399372]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0.2, -0.2, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_torch")
+
+[node name="LanternBody" type="Node3D" parent="nek/head/eyes/Camera3D" unique_id=1879399380]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22, -0.22, -0.12)
+visible = false
+
+[node name="FrameMesh" type="MeshInstance3D" parent="nek/head/eyes/Camera3D/LanternBody" unique_id=1879399381]
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_lantern_frame")
+
+[node name="GlassMesh" type="MeshInstance3D" parent="nek/head/eyes/Camera3D/LanternBody" unique_id=1879399382]
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_lantern_glass")
+
+[node name="LanternLight" type="OmniLight3D" parent="nek/head/eyes/Camera3D" unique_id=1550768290]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22, -0.22, -0.12)
+visible = false
+light_color = Color(1, 0.82, 0.52, 1)
+light_energy = 2.0
+shadow_enabled = true
+shadow_bias = 0.05
+omni_range = 9.0
+omni_attenuation = 1.25
+
+[node name="Flashlight" type="SpotLight3D" parent="nek/head/eyes/Camera3D" unique_id=1550768285]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, -0.2, -0.1)
+visible = false
+light_color = Color(1, 0.96, 0.88, 1)
+light_energy = 2.0
+shadow_enabled = true
+spot_range = 18.0
+spot_attenuation = 1.2
+spot_angle = 32.0
+
+[node name="BeamRayCast" type="RayCast3D" parent="nek/head/eyes/Camera3D/Flashlight" unique_id=478723692]
+target_position = Vector3(0, 0, -10)
+
+[node name="LensGlow" type="MeshInstance3D" parent="nek/head/eyes/Camera3D/Flashlight" unique_id=830626771]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.035)
+cast_shadow = 0
+mesh = SubResource("QuadMesh_glow")
+
+[node name="BeamMesh" type="MeshInstance3D" parent="nek/head/eyes/Camera3D/Flashlight" unique_id=553219498]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, -4)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_beam")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="nek/head/eyes" unique_id=1221797366]
+libraries/ = SubResource("AnimationLibrary_tbgi4")
+
+[node name="VoiceCapturePlayer" type="AudioStreamPlayer" parent="." unique_id=251679746]
+stream = SubResource("AudioStreamMicrophone_rec")
+bus = &"Record"
+
+[node name="VoiceIndicator" type="Label3D" parent="." unique_id=1521784191]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.35, 0)
+visible = false
+billboard = 1
+no_depth_test = true
+modulate = Color(0.85, 0.88, 0.92, 0.85)
+outline_modulate = Color(0, 0, 0, 0.9)
+text = "TALKING"
+font_size = 14
+outline_size = 4
+
+[node name="VoiceHUD" type="CanvasLayer" parent="." unique_id=709299268]
+layer = 2
+
+[node name="VoiceRoot" type="Control" parent="VoiceHUD" unique_id=1755762229]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="VoiceHUD/VoiceRoot" unique_id=1755762230]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -46.0
+offset_right = 160.0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="VoicePanel" type="PanelContainer" parent="VoiceHUD/VoiceRoot/MarginContainer" unique_id=981095421]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="VoiceRow" type="HBoxContainer" parent="VoiceHUD/VoiceRoot/MarginContainer/VoicePanel" unique_id=1406851155]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="MicIcon" type="Label" parent="VoiceHUD/VoiceRoot/MarginContainer/VoicePanel/VoiceRow" unique_id=1217955238]
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+text = " ● "
+
+[node name="VoiceLabel" type="Label" parent="VoiceHUD/VoiceRoot/MarginContainer/VoicePanel/VoiceRow" unique_id=1243720591]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.7, 0.72, 0.75, 0.7)
+theme_override_font_sizes/font_size = 11
+text = "VOICE: Idle"
+
+[node name="NoiseMeter" type="PanelContainer" parent="VoiceHUD/VoiceRoot" unique_id=1948201411]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 16.0
+offset_top = -120.0
+offset_right = 52.0
+offset_bottom = 120.0
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_meter_panel")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VoiceHUD/VoiceRoot/NoiseMeter" unique_id=1948201412]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 2
+
+[node name="NoiseStatusLabel" type="Label" parent="VoiceHUD/VoiceRoot/NoiseMeter/VBoxContainer" unique_id=1217955241]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.5, 0.7, 0.65, 0.85)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 9
+text = "SILENT"
+horizontal_alignment = 1
+
+[node name="NoiseBar" type="ProgressBar" parent="VoiceHUD/VoiceRoot/NoiseMeter/VBoxContainer" unique_id=1217955240]
+custom_minimum_size = Vector2(18, 165)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_meter_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_meter_fill")
+max_value = 100.0
+fill_mode = 3
+show_percentage = false
+
+[node name="NoiseIcon" type="Label" parent="VoiceHUD/VoiceRoot/NoiseMeter/VBoxContainer" unique_id=1217955239]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.65, 0.75, 0.8, 0.8)
+theme_override_font_sizes/font_size = 14
+text = "🔊"
+horizontal_alignment = 1
+
+[node name="CrosshairLayer" type="CanvasLayer" parent="." unique_id=396589051]
+
+[node name="CenterContainer" type="CenterContainer" parent="CrosshairLayer" unique_id=185177066]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CrosshairRing" type="TextureRect" parent="CrosshairLayer/CenterContainer"]
+visible = false
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("4_ring")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CrosshairDot" type="ColorRect" parent="CrosshairLayer/CenterContainer" unique_id=377283255]
+custom_minimum_size = Vector2(4, 4)
+layout_mode = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 0.75)
+
+[node name="FlashlightHUD" type="CanvasLayer" parent="."]
+
+[node name="MarginContainer" type="MarginContainer" parent="FlashlightHUD"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -230.0
+offset_top = -90.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="FlashlightPanel" type="PanelContainer" parent="FlashlightHUD/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="FlashlightHUD/MarginContainer/FlashlightPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HeaderRow" type="HBoxContainer" parent="FlashlightHUD/MarginContainer/FlashlightPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="FlashlightIcon" type="Label" parent="FlashlightHUD/MarginContainer/FlashlightPanel/VBoxContainer/HeaderRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = ""
+
+[node name="FlashlightModeLabel" type="Label" parent="FlashlightHUD/MarginContainer/FlashlightPanel/VBoxContainer/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.85, 0.88, 0.92, 1)
+theme_override_font_sizes/font_size = 11
+text = "HAND-CRANK"
+
+[node name="FlashlightStatusLabel" type="Label" parent="FlashlightHUD/MarginContainer/FlashlightPanel/VBoxContainer/HeaderRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.9, 0.55, 1)
+theme_override_font_sizes/font_size = 11
+text = "ON"
+
+[node name="BatteryRow" type="HBoxContainer" parent="FlashlightHUD/MarginContainer/FlashlightPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="FlashlightBatteryBar" type="ProgressBar" parent="FlashlightHUD/MarginContainer/FlashlightPanel/VBoxContainer/BatteryRow"]
+custom_minimum_size = Vector2(110, 8)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+value = 100.0
+show_percentage = false
+
+[node name="FlashlightBatteryLabel" type="Label" parent="FlashlightHUD/MarginContainer/FlashlightPanel/VBoxContainer/BatteryRow"]
+custom_minimum_size = Vector2(36, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "100%"
+horizontal_alignment = 2
+
+[node name="FlashlightPromptLabel" type="Label" parent="FlashlightHUD/MarginContainer/FlashlightPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.7, 0.78, 1)
+theme_override_font_sizes/font_size = 10
+text = "[F] Light  |  [C] Hold Crank"
+horizontal_alignment = 1
+
+[node name="MobileControls" parent="." unique_id=1103795131 instance=ExtResource("3_mobile")]

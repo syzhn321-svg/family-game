@@ -1,0 +1,619 @@
+[gd_scene load_steps=18 format=3 uid="uid://4fr3ss1redl5"]
+
+[ext_resource type="Script" path="res://scripts/mobile_controls.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/ui/creep_stand_icon.png" id="2_stand_icon"]
+[ext_resource type="Texture2D" path="res://assets/ui/crouch_icon.png" id="3_crouch_icon"]
+[ext_resource type="Texture2D" path="res://assets/ui/hand_icon.png" id="4_hand_icon"]
+[ext_resource type="Texture2D" path="res://assets/ui/wrench_icon.png" id="5_wrench_icon"]
+[ext_resource type="Texture2D" path="res://assets/ui/crank_icon.png" id="6_crank_icon"]
+[ext_resource type="Texture2D" path="res://assets/ui/checkbox_checked.png" id="7_chk_checked"]
+[ext_resource type="Texture2D" path="res://assets/ui/checkbox_unchecked.png" id="8_chk_unchecked"]
+[ext_resource type="Texture2D" path="res://assets/ui/slider_grabber.png" id="9_grabber"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_none"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slider_bg"]
+content_margin_top = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.92, 0.92, 0.92, 0.95)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_crank"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.12, 0.10, 0.06, 0.55)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.95, 0.82, 0.50, 0.45)
+corner_radius_top_left = 48
+corner_radius_top_right = 48
+corner_radius_bottom_right = 48
+corner_radius_bottom_left = 48
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_base"]
+bg_color = Color(0, 0, 0, 0.08)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.35)
+corner_radius_top_left = 85
+corner_radius_top_right = 85
+corner_radius_bottom_right = 85
+corner_radius_bottom_left = 85
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_knob"]
+bg_color = Color(1, 1, 1, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 36
+corner_radius_top_right = 36
+corner_radius_bottom_right = 36
+corner_radius_bottom_left = 36
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_light"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.06, 0.08, 0.12, 0.55)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.85, 0.88, 0.95, 0.4)
+corner_radius_top_left = 48
+corner_radius_top_right = 48
+corner_radius_bottom_right = 48
+corner_radius_bottom_left = 48
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+bg_color = Color(0.03, 0.04, 0.05, 0.35)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.65, 0.68, 0.72, 0.22)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_options"]
+bg_color = Color(0.06, 0.07, 0.09, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.85, 0.88, 0.92, 0.85)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_opt_btn"]
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 6.0
+bg_color = Color(0.05, 0.06, 0.08, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.85, 0.88, 0.92, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="MobileControls" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_script")
+
+[node name="TouchRoot" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="JoystickArea" type="Control" parent="TouchRoot"]
+layout_mode = 1
+anchor_top = 0.35
+anchor_bottom = 1.0
+offset_right = 420.0
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="Base" type="Panel" parent="TouchRoot/JoystickArea"]
+modulate = Color(1, 1, 1, 0.45)
+custom_minimum_size = Vector2(170, 170)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 60.0
+offset_top = -230.0
+offset_right = 230.0
+offset_bottom = -60.0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_base")
+
+[node name="Knob" type="Panel" parent="TouchRoot/JoystickArea/Base"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -36.0
+offset_top = -36.0
+offset_right = 36.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_knob")
+
+[node name="LookArea" type="Control" parent="TouchRoot"]
+layout_mode = 1
+anchor_left = 0.4
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 0
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CrouchButton" type="Button" parent="TouchRoot"]
+custom_minimum_size = Vector2(96, 136)
+layout_mode = 0
+offset_left = 40.0
+offset_top = 26.0
+offset_right = 136.0
+offset_bottom = 162.0
+focus_mode = 0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_none")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_none")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_none")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_none")
+icon = ExtResource("2_stand_icon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="SettingsButton" type="Button" parent="TouchRoot"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_left = 155.0
+offset_top = 38.0
+offset_right = 219.0
+offset_bottom = 102.0
+focus_mode = 0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_none")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_none")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_none")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_none")
+icon = ExtResource("5_wrench_icon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="InteractButton" type="Button" parent="TouchRoot"]
+visible = false
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_top = 0.3
+anchor_right = 1.0
+anchor_bottom = 0.3
+offset_left = -160.0
+offset_top = -50.0
+offset_right = -60.0
+offset_bottom = 50.0
+grow_horizontal = 0
+grow_vertical = 2
+focus_mode = 0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_none")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_none")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_none")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_none")
+icon = ExtResource("4_hand_icon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="DropButton" type="Button" parent="TouchRoot"]
+visible = false
+custom_minimum_size = Vector2(140, 50)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -70.0
+offset_top = -80.0
+offset_right = 70.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 0.95)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.75)
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxEmpty_none")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_none")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_none")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_none")
+text = "DROP"
+
+[node name="FlashlightButton" type="Button" parent="TouchRoot"]
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -180.0
+offset_top = -180.0
+offset_right = -84.0
+offset_bottom = -84.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(0.9, 0.93, 0.97, 0.9)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_light")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_light")
+theme_override_styles/hover = SubResource("StyleBoxFlat_light")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_none")
+text = "LIGHT"
+
+[node name="CrankButton" type="Button" parent="TouchRoot"]
+visible = false
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -260.0
+offset_top = -230.0
+offset_right = -164.0
+offset_bottom = -134.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_crank")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_crank")
+theme_override_styles/hover = SubResource("StyleBoxFlat_crank")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_none")
+icon = ExtResource("6_crank_icon")
+icon_alignment = 1
+expand_icon = true
+
+[node name="OptionsModal" type="Panel" parent="TouchRoot"]
+process_mode = 3
+visible = false
+custom_minimum_size = Vector2(520, 290)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -145.0
+offset_right = 260.0
+offset_bottom = 145.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_options")
+
+[node name="OptionsTitle" type="Label" parent="TouchRoot/OptionsModal"]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 20.0
+offset_right = 130.0
+offset_bottom = 48.0
+theme_override_colors/font_color = Color(0.95, 0.95, 0.95, 1)
+theme_override_font_sizes/font_size = 20
+text = "Options"
+
+[node name="Underline" type="ColorRect" parent="TouchRoot/OptionsModal"]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 48.0
+offset_right = 110.0
+offset_bottom = 50.0
+color = Color(0.9, 0.9, 0.9, 0.8)
+
+[node name="MusicVBox" type="VBoxContainer" parent="TouchRoot/OptionsModal"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -115.0
+offset_top = 18.0
+offset_right = -35.0
+offset_bottom = 82.0
+grow_horizontal = 0
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="MusicLabel" type="Label" parent="TouchRoot/OptionsModal/MusicVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.95, 1)
+theme_override_font_sizes/font_size = 18
+text = "Music"
+horizontal_alignment = 1
+
+[node name="MusicCheckBox" type="CheckBox" parent="TouchRoot/OptionsModal/MusicVBox"]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_override_icons/checked = ExtResource("7_chk_checked")
+theme_override_icons/unchecked = ExtResource("8_chk_unchecked")
+button_pressed = true
+
+[node name="SensVBox" type="VBoxContainer" parent="TouchRoot/OptionsModal"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -30.0
+offset_right = 160.0
+offset_bottom = 35.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="SensLabel" type="Label" parent="TouchRoot/OptionsModal/SensVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.92, 0.92, 1)
+theme_override_font_sizes/font_size = 18
+text = "Sensitivity"
+horizontal_alignment = 1
+
+[node name="SensSlider" type="HSlider" parent="TouchRoot/OptionsModal/SensVBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+focus_mode = 0
+theme_override_icons/grabber = ExtResource("9_grabber")
+theme_override_icons/grabber_highlight = ExtResource("9_grabber")
+theme_override_styles/slider = SubResource("StyleBoxFlat_slider_bg")
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_slider_bg")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_slider_bg")
+min_value = 0.05
+max_value = 0.8
+step = 0.01
+value = 0.25
+
+[node name="MainMenuButton" type="Button" parent="TouchRoot/OptionsModal"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = -60.0
+offset_right = 145.0
+offset_bottom = -22.0
+grow_vertical = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(0.95, 0.95, 0.95, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_none")
+text = "Main Menu"
+
+[node name="MoreOptionsButton" type="Button" parent="TouchRoot/OptionsModal"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -75.0
+offset_top = -60.0
+offset_right = 75.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(0.95, 0.95, 0.95, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_none")
+text = "More Options ▾"
+
+[node name="ResumeButton" type="Button" parent="TouchRoot/OptionsModal"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -145.0
+offset_top = -60.0
+offset_right = -32.0
+offset_bottom = -22.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(0.95, 0.95, 0.95, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_none")
+text = "Resume"
+
+[node name="MoreOptionsContainer" type="VBoxContainer" parent="TouchRoot/OptionsModal"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -210.0
+offset_top = 15.0
+offset_right = 210.0
+offset_bottom = 95.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="SizeLabel" type="Label" parent="TouchRoot/OptionsModal/MoreOptionsContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.92, 0.92, 1)
+theme_override_font_sizes/font_size = 15
+text = "Touch Controls Size"
+horizontal_alignment = 1
+
+[node name="SizeHBox" type="HBoxContainer" parent="TouchRoot/OptionsModal/MoreOptionsContainer"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 12
+
+[node name="BtnSmallest" type="Button" parent="TouchRoot/OptionsModal/MoreOptionsContainer/SizeHBox"]
+custom_minimum_size = Vector2(95, 34)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_none")
+text = "Smallest"
+
+[node name="BtnMedium" type="Button" parent="TouchRoot/OptionsModal/MoreOptionsContainer/SizeHBox"]
+custom_minimum_size = Vector2(95, 34)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_none")
+text = "Medium"
+
+[node name="BtnLarge" type="Button" parent="TouchRoot/OptionsModal/MoreOptionsContainer/SizeHBox"]
+custom_minimum_size = Vector2(95, 34)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_opt_btn")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_none")
+text = "Large"
+
+[node name="MicVBox" type="VBoxContainer" parent="TouchRoot/OptionsModal/MoreOptionsContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="MicThreshRow" type="HBoxContainer" parent="TouchRoot/OptionsModal/MoreOptionsContainer/MicVBox"]
+layout_mode = 2
+
+[node name="MicThreshLabel" type="Label" parent="TouchRoot/OptionsModal/MoreOptionsContainer/MicVBox/MicThreshRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.92, 0.92, 1)
+theme_override_font_sizes/font_size = 13
+text = "Mic Gate (Filter Noise):"
+
+[node name="MicThreshVal" type="Label" parent="TouchRoot/OptionsModal/MoreOptionsContainer/MicVBox/MicThreshRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.85, 0.7, 1)
+theme_override_font_sizes/font_size = 13
+text = "25%"
+
+[node name="MicThreshSlider" type="HSlider" parent="TouchRoot/OptionsModal/MoreOptionsContainer/MicVBox"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+focus_mode = 0
+theme_override_icons/grabber = ExtResource("9_grabber")
+theme_override_icons/grabber_highlight = ExtResource("9_grabber")
+theme_override_styles/slider = SubResource("StyleBoxFlat_slider_bg")
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_slider_bg")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_slider_bg")
+min_value = 0.005
+max_value = 0.1
+step = 0.005
+value = 0.025
+
+[node name="MicSensRow" type="HBoxContainer" parent="TouchRoot/OptionsModal/MoreOptionsContainer/MicVBox"]
+layout_mode = 2
+
+[node name="MicSensLabel" type="Label" parent="TouchRoot/OptionsModal/MoreOptionsContainer/MicVBox/MicSensRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.92, 0.92, 1)
+theme_override_font_sizes/font_size = 13
+text = "Mic Sensitivity:"
+
+[node name="MicSensVal" type="Label" parent="TouchRoot/OptionsModal/MoreOptionsContainer/MicVBox/MicSensRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.85, 0.7, 1)
+theme_override_font_sizes/font_size = 13
+text = "1.0x"
+
+[node name="MicSensSlider" type="HSlider" parent="TouchRoot/OptionsModal/MoreOptionsContainer/MicVBox"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+focus_mode = 0
+theme_override_icons/grabber = ExtResource("9_grabber")
+theme_override_icons/grabber_highlight = ExtResource("9_grabber")
+theme_override_styles/slider = SubResource("StyleBoxFlat_slider_bg")
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_slider_bg")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_slider_bg")
+min_value = 0.2
+max_value = 2.5
+step = 0.1
+value = 1.0
+
+[connection signal="pressed" from="TouchRoot/CrouchButton" to="." method="_on_crouch_button_pressed"]
+[connection signal="pressed" from="TouchRoot/SettingsButton" to="." method="_on_settings_button_pressed"]
+[connection signal="pressed" from="TouchRoot/InteractButton" to="." method="_on_interact_button_pressed"]
+[connection signal="pressed" from="TouchRoot/DropButton" to="." method="_on_drop_button_pressed"]
+[connection signal="pressed" from="TouchRoot/FlashlightButton" to="." method="_on_flashlight_button_pressed"]
+[connection signal="pressed" from="TouchRoot/CrankButton" to="." method="_on_crank_button_pressed"]
+[connection signal="toggled" from="TouchRoot/OptionsModal/MusicVBox/MusicCheckBox" to="." method="_on_music_check_box_toggled"]
+[connection signal="value_changed" from="TouchRoot/OptionsModal/SensVBox/SensSlider" to="." method="_on_sens_slider_value_changed"]
+[connection signal="pressed" from="TouchRoot/OptionsModal/MainMenuButton" to="." method="_on_main_menu_button_pressed"]
+[connection signal="pressed" from="TouchRoot/OptionsModal/MoreOptionsButton" to="." method="_on_more_options_button_pressed"]
+[connection signal="pressed" from="TouchRoot/OptionsModal/ResumeButton" to="." method="_on_resume_button_pressed"]
+[connection signal="pressed" from="TouchRoot/OptionsModal/MoreOptionsContainer/SizeHBox/BtnSmallest" to="." method="_on_btn_size_smallest_pressed"]
+[connection signal="pressed" from="TouchRoot/OptionsModal/MoreOptionsContainer/SizeHBox/BtnMedium" to="." method="_on_btn_size_medium_pressed"]
+[connection signal="pressed" from="TouchRoot/OptionsModal/MoreOptionsContainer/SizeHBox/BtnLarge" to="." method="_on_btn_size_large_pressed"]
+[connection signal="value_changed" from="TouchRoot/OptionsModal/MoreOptionsContainer/MicVBox/MicThreshSlider" to="." method="_on_mic_thresh_slider_value_changed"]
+[connection signal="value_changed" from="TouchRoot/OptionsModal/MoreOptionsContainer/MicVBox/MicSensSlider" to="." method="_on_mic_sens_slider_value_changed"]

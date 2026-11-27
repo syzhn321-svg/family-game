@@ -1,0 +1,1120 @@
+[gd_scene format=3 uid="uid://dm602m5a14d5e"]
+
+[ext_resource type="Script" uid="uid://bgwoy2626y8kr" path="res://scripts/main_menu.gd" id="1_menu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
+bg_color = Color(0.065, 0.075, 0.095, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.2, 0.26, 0.6)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_save_card"]
+content_margin_left = 18.0
+content_margin_top = 16.0
+content_margin_right = 18.0
+content_margin_bottom = 16.0
+bg_color = Color(0.065, 0.08, 0.11, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.32, 0.45, 0.6)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_code_pill"]
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.05, 0.08, 0.07, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.45, 0.35, 0.7)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_brief_pill"]
+content_margin_left = 12.0
+content_margin_top = 7.0
+content_margin_right = 12.0
+content_margin_bottom = 7.0
+bg_color = Color(0.08, 0.09, 0.13, 0.8)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.22, 0.3, 0.5)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rules_bar"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.08, 0.09, 0.12, 0.6)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.25, 0.32, 0.4)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_card"]
+content_margin_left = 18.0
+content_margin_top = 16.0
+content_margin_right = 18.0
+content_margin_bottom = 16.0
+bg_color = Color(0.08, 0.09, 0.12, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.32, 0.42, 0.8)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_calib_bg"]
+bg_color = Color(0.06, 0.08, 0.11, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_calib_fill"]
+bg_color = Color(0.25, 0.85, 0.55, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slide_card"]
+content_margin_left = 32.0
+content_margin_top = 28.0
+content_margin_right = 32.0
+content_margin_bottom = 28.0
+bg_color = Color(0.065, 0.075, 0.1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.27, 0.36, 0.8)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slide_sep"]
+bg_color = Color(0.2, 0.24, 0.32, 0.6)
+content_margin_top = 1.0
+content_margin_bottom = 1.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slide_btn_auto"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.12, 0.22, 0.32, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.65, 0.85, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slide_btn_secondary"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+bg_color = Color(0.09, 0.11, 0.15, 0.7)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.3, 0.4, 0.5)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slide_btn_primary"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.18, 0.48, 0.38, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.9, 0.65, 0.9)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="MainMenu" type="Control" unique_id=141184140]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="Background" type="ColorRect" parent="." unique_id=336699062]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.045, 0.05, 0.065, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1340276127]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=1308888354]
+custom_minimum_size = Vector2(520, 0)
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleBox" type="VBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=1026217927]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="CenterContainer/VBoxContainer/TitleBox" unique_id=387739883]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.92, 1)
+theme_override_font_sizes/font_size = 52
+text = "F A M I L Y"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="CenterContainer/VBoxContainer/TitleBox" unique_id=329566512]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.52, 0.58, 1)
+theme_override_font_sizes/font_size = 14
+text = "CO-OP ESCAPE"
+horizontal_alignment = 1
+
+[node name="PlayerNameBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=1688742894]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PlayerNameLabel" type="Label" parent="CenterContainer/VBoxContainer/PlayerNameBox" unique_id=348144781]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.8, 0.88, 1)
+theme_override_font_sizes/font_size = 13
+text = "Your Name:"
+
+[node name="PlayerNameInput" type="LineEdit" parent="CenterContainer/VBoxContainer/PlayerNameBox" unique_id=1356090208]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Player"
+placeholder_text = "Enter your display name"
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/VBoxContainer" unique_id=1679564574]
+layout_mode = 2
+
+[node name="MainButtons" type="VBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=672742528]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="PlayAloneButton" type="Button" parent="CenterContainer/VBoxContainer/MainButtons" unique_id=934697514]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+disabled = true
+text = "CAMPAIGN (COMING SOON)"
+
+[node name="MultiplayerButton" type="Button" parent="CenterContainer/VBoxContainer/MainButtons" unique_id=1552058755]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "MULTIPLAYER"
+
+[node name="OptionsButton" type="Button" parent="CenterContainer/VBoxContainer/MainButtons" unique_id=1798720646]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "OPTIONS"
+
+[node name="QuitButton" type="Button" parent="CenterContainer/VBoxContainer/MainButtons" unique_id=270533059]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "QUIT"
+
+[node name="CampaignPanel" type="VBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=1289034820]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="CampaignCard" type="PanelContainer" parent="CenterContainer/VBoxContainer/CampaignPanel" unique_id=1289034821]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_save_card")
+
+[node name="CardVBox" type="VBoxContainer" parent="CenterContainer/VBoxContainer/CampaignPanel/CampaignCard"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="StatusRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/CampaignPanel/CampaignCard/CardVBox"]
+layout_mode = 2
+
+[node name="SaveStatusTag" type="Label" parent="CenterContainer/VBoxContainer/CampaignPanel/CampaignCard/CardVBox/StatusRow" unique_id=934697525]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.76, 0.35, 1)
+theme_override_font_sizes/font_size = 11
+text = "ACTIVE CHECKPOINT"
+
+[node name="SaveSlotLabel" type="Label" parent="CenterContainer/VBoxContainer/CampaignPanel/CampaignCard/CardVBox/StatusRow" unique_id=934697526]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.55, 0.65, 1)
+theme_override_font_sizes/font_size = 11
+text = "SOLO STORY"
+horizontal_alignment = 2
+
+[node name="ChapterTitleLabel" type="Label" parent="CenterContainer/VBoxContainer/CampaignPanel/CampaignCard/CardVBox" unique_id=934697527]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 16
+text = "Chapter 1: The Midnight Return"
+
+[node name="CheckpointLocationLabel" type="Label" parent="CenterContainer/VBoxContainer/CampaignPanel/CampaignCard/CardVBox" unique_id=934697521]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 0.9)
+theme_override_font_sizes/font_size = 12
+text = "Checkpoint: Kandiez Sunrise Beach Resort"
+
+[node name="CampaignActions" type="VBoxContainer" parent="CenterContainer/VBoxContainer/CampaignPanel" unique_id=1289034822]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ContinueGameButton" type="Button" parent="CenterContainer/VBoxContainer/CampaignPanel/CampaignActions" unique_id=934697520]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "CONTINUE"
+
+[node name="NewGameButton" type="Button" parent="CenterContainer/VBoxContainer/CampaignPanel/CampaignActions" unique_id=934697522]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "NEW GAME"
+
+[node name="BackFromCampaignButton" type="Button" parent="CenterContainer/VBoxContainer/CampaignPanel/CampaignActions" unique_id=934697523]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "BACK"
+
+[node name="NewGameConfirmBox" type="VBoxContainer" parent="CenterContainer/VBoxContainer/CampaignPanel" unique_id=1289034825]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ConfirmWarningLabel" type="Label" parent="CenterContainer/VBoxContainer/CampaignPanel/NewGameConfirmBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.65, 0.25, 1)
+theme_override_font_sizes/font_size = 12
+text = "Overwrite existing campaign checkpoint?"
+horizontal_alignment = 1
+
+[node name="ConfirmButtonsRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/CampaignPanel/NewGameConfirmBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ConfirmNewGameButton" type="Button" parent="CenterContainer/VBoxContainer/CampaignPanel/NewGameConfirmBox/ConfirmButtonsRow" unique_id=1289034826]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "OVERWRITE"
+
+[node name="CancelNewGameButton" type="Button" parent="CenterContainer/VBoxContainer/CampaignPanel/NewGameConfirmBox/ConfirmButtonsRow" unique_id=1289034827]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "CANCEL"
+
+[node name="MultiplayerPanel" type="VBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=1289034830]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="MultiplayerTitle" type="Label" parent="CenterContainer/VBoxContainer/MultiplayerPanel" unique_id=1289034831]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "CO-OP MULTIPLAYER"
+horizontal_alignment = 1
+
+[node name="MultiplayerDesc" type="Label" parent="CenterContainer/VBoxContainer/MultiplayerPanel" unique_id=1289034832]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 12
+text = "Host or Join a Session"
+horizontal_alignment = 1
+
+[node name="HostCoopButton" type="Button" parent="CenterContainer/VBoxContainer/MultiplayerPanel" unique_id=1814789668]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "CREATE LOBBY"
+
+[node name="JoinCoopButton" type="Button" parent="CenterContainer/VBoxContainer/MultiplayerPanel" unique_id=352973994]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "JOIN LOBBY"
+
+[node name="BackFromMultiplayerButton" type="Button" parent="CenterContainer/VBoxContainer/MultiplayerPanel" unique_id=1544626500]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "BACK"
+
+[node name="HostSetupPanel" type="VBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=307974]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HostSetupTitle" type="Label" parent="CenterContainer/VBoxContainer/HostSetupPanel" unique_id=193148034]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "CREATE LOBBY"
+horizontal_alignment = 1
+
+[node name="HostSetupDesc" type="Label" parent="CenterContainer/VBoxContainer/HostSetupPanel" unique_id=1157718293]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 12
+text = "Session Settings"
+horizontal_alignment = 1
+
+[node name="GameModeBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/HostSetupPanel" unique_id=621523390]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="GameModeLabel" type="Label" parent="CenterContainer/VBoxContainer/HostSetupPanel/GameModeBox" unique_id=621523391]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Game Mode:"
+
+[node name="GameModeOption" type="OptionButton" parent="CenterContainer/VBoxContainer/HostSetupPanel/GameModeBox" unique_id=621523392]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LobbyNameBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/HostSetupPanel" unique_id=621523396]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LobbyNameLabel" type="Label" parent="CenterContainer/VBoxContainer/HostSetupPanel/LobbyNameBox" unique_id=2088254636]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Lobby Name:"
+
+[node name="LobbyNameInput" type="LineEdit" parent="CenterContainer/VBoxContainer/HostSetupPanel/LobbyNameBox" unique_id=5619042]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Family House"
+
+[node name="MaxPlayersBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/HostSetupPanel" unique_id=1127247618]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MaxPlayersLabel" type="Label" parent="CenterContainer/VBoxContainer/HostSetupPanel/MaxPlayersBox" unique_id=1699683869]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Max Players:"
+
+[node name="MaxPlayersOption" type="OptionButton" parent="CenterContainer/VBoxContainer/HostSetupPanel/MaxPlayersBox" unique_id=635357641]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HostInfoLabel" type="Label" parent="CenterContainer/VBoxContainer/HostSetupPanel" unique_id=1523438961]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.75, 0.85, 1)
+theme_override_font_sizes/font_size = 12
+text = "Broadcasting session..."
+horizontal_alignment = 1
+
+[node name="StartHostButton" type="Button" parent="CenterContainer/VBoxContainer/HostSetupPanel" unique_id=525224756]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "START LOBBY"
+
+[node name="BackFromHostSetupButton" type="Button" parent="CenterContainer/VBoxContainer/HostSetupPanel" unique_id=1528511117]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "BACK"
+
+[node name="JoinMethodsPanel" type="VBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=1822044047]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="JoinOnlineButton" type="Button" parent="CenterContainer/VBoxContainer/JoinMethodsPanel" unique_id=896729079]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "ONLINE"
+
+[node name="JoinLanButton" type="Button" parent="CenterContainer/VBoxContainer/JoinMethodsPanel" unique_id=1003902560]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "LAN"
+
+[node name="BackFromJoinMethodsButton" type="Button" parent="CenterContainer/VBoxContainer/JoinMethodsPanel" unique_id=483536768]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "BACK"
+
+[node name="JoinRoomCodePanel" type="VBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=6662530]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="JoinRoomTitle" type="Label" parent="CenterContainer/VBoxContainer/JoinRoomCodePanel" unique_id=1826028710]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "ONLINE"
+horizontal_alignment = 1
+
+[node name="RoomCodeDesc" type="Label" parent="CenterContainer/VBoxContainer/JoinRoomCodePanel" unique_id=1157489896]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 12
+text = "Enter Room Code or Host IP:"
+horizontal_alignment = 1
+
+[node name="RoomCodeRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/JoinRoomCodePanel" unique_id=681947128]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RoomCodeInput" type="LineEdit" parent="CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeRow" unique_id=1297203716]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "e.g. K8SZ, 192.168.0.x, or IP"
+alignment = 1
+max_length = 64
+
+[node name="PasteCodeButton" type="Button" parent="CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeRow" unique_id=1489033034]
+custom_minimum_size = Vector2(65, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "PASTE"
+
+[node name="JoinRoomCodeButton" type="Button" parent="CenterContainer/VBoxContainer/JoinRoomCodePanel" unique_id=1105983475]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "JOIN"
+
+[node name="RoomCodeStatusLabel" type="Label" parent="CenterContainer/VBoxContainer/JoinRoomCodePanel" unique_id=1896742165]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.45, 0.45, 1)
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+
+[node name="BackFromRoomCodeButton" type="Button" parent="CenterContainer/VBoxContainer/JoinRoomCodePanel" unique_id=1882357387]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "BACK"
+
+[node name="JoinLanPanel" type="VBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=1968247772]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="JoinLanTitle" type="Label" parent="CenterContainer/VBoxContainer/JoinLanPanel" unique_id=923087352]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "LAN"
+horizontal_alignment = 1
+
+[node name="SearchingLabel" type="Label" parent="CenterContainer/VBoxContainer/JoinLanPanel" unique_id=426764713]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.55, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "Searching local network..."
+horizontal_alignment = 1
+
+[node name="LobbyList" type="VBoxContainer" parent="CenterContainer/VBoxContainer/JoinLanPanel" unique_id=1442280262]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="RefreshLanButton" type="Button" parent="CenterContainer/VBoxContainer/JoinLanPanel" unique_id=1322159003]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "REFRESH"
+
+[node name="BackFromLanButton" type="Button" parent="CenterContainer/VBoxContainer/JoinLanPanel" unique_id=1458582165]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "BACK"
+
+[node name="LobbyPanel" type="VBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=57077058]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LobbyHeader" type="VBoxContainer" parent="CenterContainer/VBoxContainer/LobbyPanel" unique_id=629650086]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="LobbyTitle" type="Label" parent="CenterContainer/VBoxContainer/LobbyPanel/LobbyHeader" unique_id=230303190]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.96, 0.98, 1)
+theme_override_font_sizes/font_size = 22
+text = "SHUHA'S HOUSE"
+horizontal_alignment = 1
+
+[node name="LobbySettingsLabel" type="Label" parent="CenterContainer/VBoxContainer/LobbyPanel/LobbyHeader" unique_id=1569821811]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.75, 0.88, 1)
+theme_override_font_sizes/font_size = 12
+text = "Session Rules"
+horizontal_alignment = 1
+
+[node name="RoomCodeCard" type="PanelContainer" parent="CenterContainer/VBoxContainer/LobbyPanel" unique_id=975558689]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_code_pill")
+
+[node name="LobbyCodeRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/LobbyPanel/RoomCodeCard"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CodePrefix" type="Label" parent="CenterContainer/VBoxContainer/LobbyPanel/RoomCodeCard/LobbyCodeRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.65, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+text = "ROOM CODE:"
+
+[node name="LobbyCodeLabel" type="Label" parent="CenterContainer/VBoxContainer/LobbyPanel/RoomCodeCard/LobbyCodeRow" unique_id=1714516072]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.4, 0.95, 0.65, 1)
+theme_override_font_sizes/font_size = 15
+text = "1E0UVS0-1HGE10B"
+horizontal_alignment = 1
+
+[node name="CopyCodeButton" type="Button" parent="CenterContainer/VBoxContainer/LobbyPanel/RoomCodeCard/LobbyCodeRow" unique_id=318498856]
+custom_minimum_size = Vector2(80, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "COPY"
+
+[node name="LobbyOnlineLabel" type="Label" parent="CenterContainer/VBoxContainer/LobbyPanel" unique_id=1198134259]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.8, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+text = "● Online & LAN Ready (Port 8910)"
+horizontal_alignment = 1
+
+[node name="LobbyIpRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/LobbyPanel" unique_id=471195245]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LobbyIpLabel" type="Label" parent="CenterContainer/VBoxContainer/LobbyPanel/LobbyIpRow" unique_id=56581112]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.5, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "LAN Host: 192.168.0.155:8910"
+horizontal_alignment = 1
+
+[node name="CopyIpButton" type="Button" parent="CenterContainer/VBoxContainer/LobbyPanel/LobbyIpRow" unique_id=1318219805]
+custom_minimum_size = Vector2(60, 24)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "COPY IP"
+
+[node name="RosterCard" type="PanelContainer" parent="CenterContainer/VBoxContainer/LobbyPanel" unique_id=254220252]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="RosterVBox" type="VBoxContainer" parent="CenterContainer/VBoxContainer/LobbyPanel/RosterCard"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="RosterHeader" type="HBoxContainer" parent="CenterContainer/VBoxContainer/LobbyPanel/RosterCard/RosterVBox"]
+layout_mode = 2
+
+[node name="RosterTitle" type="Label" parent="CenterContainer/VBoxContainer/LobbyPanel/RosterCard/RosterVBox/RosterHeader" unique_id=172690620]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8, 0.85, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "SQUAD MEMBERS"
+
+[node name="PlayerCountLabel" type="Label" parent="CenterContainer/VBoxContainer/LobbyPanel/RosterCard/RosterVBox/RosterHeader" unique_id=2137579012]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.6, 0.72, 1)
+theme_override_font_sizes/font_size = 11
+text = "1 / 4"
+
+[node name="RosterSep" type="HSeparator" parent="CenterContainer/VBoxContainer/LobbyPanel/RosterCard/RosterVBox"]
+layout_mode = 2
+
+[node name="PlayerListContainer" type="VBoxContainer" parent="CenterContainer/VBoxContainer/LobbyPanel/RosterCard/RosterVBox" unique_id=401800758]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="RoleBriefCard" type="PanelContainer" parent="CenterContainer/VBoxContainer/LobbyPanel"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_brief_pill")
+
+[node name="RoleDescLabel" type="Label" parent="CenterContainer/VBoxContainer/LobbyPanel/RoleBriefCard" unique_id=987123457]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.78, 0.88, 1)
+theme_override_font_sizes/font_size = 11
+text = "Tool: Select your role for the match"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="LobbyStatusLabel" type="Label" parent="CenterContainer/VBoxContainer/LobbyPanel" unique_id=2038535034]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.9, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "Waiting for other players to join, or start solo."
+horizontal_alignment = 1
+
+[node name="LobbyButtonsBox" type="VBoxContainer" parent="CenterContainer/VBoxContainer/LobbyPanel" unique_id=1815942193]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ReadyButton" type="Button" parent="CenterContainer/VBoxContainer/LobbyPanel/LobbyButtonsBox" unique_id=1422157173]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "READY UP"
+
+[node name="StartGameButton" type="Button" parent="CenterContainer/VBoxContainer/LobbyPanel/LobbyButtonsBox" unique_id=800610742]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "START EXPEDITION"
+
+[node name="MatchSettingsButton" type="Button" parent="CenterContainer/VBoxContainer/LobbyPanel/LobbyButtonsBox" unique_id=987654320]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "MATCH SETTINGS"
+
+[node name="LeaveLobbyButton" type="Button" parent="CenterContainer/VBoxContainer/LobbyPanel/LobbyButtonsBox" unique_id=1492232618]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "LEAVE LOBBY"
+
+[node name="OptionsPanel" type="VBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=792564396]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="OptionsTitle" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel" unique_id=590878589]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "GAME OPTIONS"
+horizontal_alignment = 1
+
+[node name="VoiceBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel" unique_id=643373453]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="VoiceLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel/VoiceBox" unique_id=1131678860]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Voice Chat:"
+
+[node name="VoiceModeOption" type="OptionButton" parent="CenterContainer/VBoxContainer/OptionsPanel/VoiceBox" unique_id=2024246032]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CrosshairBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel" unique_id=1517433079]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CrosshairLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel/CrosshairBox" unique_id=668520102]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Crosshair:"
+
+[node name="CrosshairCheck" type="CheckBox" parent="CenterContainer/VBoxContainer/OptionsPanel/CrosshairBox" unique_id=314587344]
+layout_mode = 2
+button_pressed = true
+text = "Show Center Dot"
+
+[node name="TouchSizeBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TouchSizeLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel/TouchSizeBox"]
+custom_minimum_size = Vector2(130, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Touch Control Size:"
+
+[node name="TouchSizeOption" type="OptionButton" parent="CenterContainer/VBoxContainer/OptionsPanel/TouchSizeBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MicBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MicLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel/MicBox"]
+custom_minimum_size = Vector2(130, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Microphone:"
+
+[node name="CalibrateMicButton" type="Button" parent="CenterContainer/VBoxContainer/OptionsPanel/MicBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Calibrate Mic 🎙️"
+
+[node name="HSeparatorOptions" type="HSeparator" parent="CenterContainer/VBoxContainer/OptionsPanel" unique_id=1023509240]
+layout_mode = 2
+
+[node name="BackFromOptionsButton" type="Button" parent="CenterContainer/VBoxContainer/OptionsPanel" unique_id=1845321954]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "BACK"
+
+[node name="MatchSettingsModal" type="ColorRect" parent="." unique_id=987654321]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.75)
+
+[node name="ModalCenter" type="CenterContainer" parent="MatchSettingsModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ModalCard" type="PanelContainer" parent="MatchSettingsModal/ModalCenter"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_card")
+
+[node name="ModalVBox" type="VBoxContainer" parent="MatchSettingsModal/ModalCenter/ModalCard"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ModalTitle" type="Label" parent="MatchSettingsModal/ModalCenter/ModalCard/ModalVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "MATCH SETTINGS"
+horizontal_alignment = 1
+
+[node name="ModalSubtitle" type="Label" parent="MatchSettingsModal/ModalCenter/ModalCard/ModalVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.72, 0.85, 1)
+theme_override_font_sizes/font_size = 11
+text = "Configure rules for this match"
+horizontal_alignment = 1
+
+[node name="ModalSep" type="HSeparator" parent="MatchSettingsModal/ModalCenter/ModalCard/ModalVBox"]
+layout_mode = 2
+
+[node name="ModalAtmosphereBox" type="HBoxContainer" parent="MatchSettingsModal/ModalCenter/ModalCard/ModalVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AtmosphereLabel" type="Label" parent="MatchSettingsModal/ModalCenter/ModalCard/ModalVBox/ModalAtmosphereBox"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Atmosphere:"
+
+[node name="ModalAtmosphereOption" type="OptionButton" parent="MatchSettingsModal/ModalCenter/ModalCard/ModalVBox/ModalAtmosphereBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ModalFlashlightBox" type="HBoxContainer" parent="MatchSettingsModal/ModalCenter/ModalCard/ModalVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="FlashlightLabel" type="Label" parent="MatchSettingsModal/ModalCenter/ModalCard/ModalVBox/ModalFlashlightBox"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Flashlights:"
+
+[node name="ModalFlashlightOption" type="OptionButton" parent="MatchSettingsModal/ModalCenter/ModalCard/ModalVBox/ModalFlashlightBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ModalNameTagsBox" type="HBoxContainer" parent="MatchSettingsModal/ModalCenter/ModalCard/ModalVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ModalNameTagsCheck" type="CheckBox" parent="MatchSettingsModal/ModalCenter/ModalCard/ModalVBox/ModalNameTagsBox"]
+layout_mode = 2
+button_pressed = true
+text = "Show 3D Name Tags above players"
+
+[node name="ModalDoneButton" type="Button" parent="MatchSettingsModal/ModalCenter/ModalCard/ModalVBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "DONE"
+
+[node name="MicCalibrationScreen" type="Control" parent="." unique_id=987654322]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="MicCalibrationScreen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.045, 0.06, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="MicCalibrationScreen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainCard" type="PanelContainer" parent="MicCalibrationScreen/CenterContainer"]
+custom_minimum_size = Vector2(620, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slide_card")
+
+[node name="VBox" type="VBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="HeaderBox" type="VBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/HeaderBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 24
+text = "🎙️ MICROPHONE SETUP"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/HeaderBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 12
+text = "Entities in the house react to your voice.
+Calibrate your microphone so background noise won't give you away."
+horizontal_alignment = 1
+
+[node name="HeaderSep" type="HSeparator" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/HeaderBox"]
+layout_mode = 2
+theme_override_styles/separator = SubResource("StyleBoxFlat_slide_sep")
+
+[node name="LiveMeterVBox" type="VBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="MeterRow" type="HBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/LiveMeterVBox"]
+layout_mode = 2
+
+[node name="MeterTitle" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/LiveMeterVBox/MeterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.85, 0.88, 0.94, 1)
+theme_override_font_sizes/font_size = 13
+text = "Live Microphone Level:"
+
+[node name="MeterStatus" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/LiveMeterVBox/MeterRow" unique_id=987654323]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.95, 0.6, 1)
+theme_override_font_sizes/font_size = 13
+text = "🟢 Safe (Filtered)"
+
+[node name="CalibProgressBar" type="ProgressBar" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/LiveMeterVBox" unique_id=987654324]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_calib_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_calib_fill")
+max_value = 100.0
+show_percentage = false
+
+[node name="AutoCalibVBox" type="VBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="AutoCalibButton" type="Button" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/AutoCalibVBox" unique_id=987654329]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_slide_btn_auto")
+theme_override_font_sizes/font_size = 13
+text = "🎙️ Auto-Detect Background Noise"
+
+[node name="AutoCalibStatus" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/AutoCalibVBox" unique_id=987654332]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.66, 0.76, 1)
+theme_override_font_sizes/font_size = 11
+text = "Stay quiet and click to sample & filter ambient fans/room noise."
+horizontal_alignment = 1
+
+[node name="ManualAdjustButton" type="Button" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox" unique_id=987654334]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.78, 0.9, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_slide_btn_secondary")
+theme_override_font_sizes/font_size = 11
+text = "⚙️ Manual Adjustments ▾"
+
+[node name="SlidersVBox" type="VBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox" unique_id=987654335]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="GateBox" type="VBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="GateRow" type="HBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/GateBox"]
+layout_mode = 2
+
+[node name="GateTitle" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/GateBox/GateRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "Noise Filter Gate:"
+
+[node name="ThresholdValLabel" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/GateBox/GateRow" unique_id=987654325]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.95, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "Medium / Recommended"
+
+[node name="ThresholdSlider" type="HSlider" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/GateBox" unique_id=987654326]
+layout_mode = 2
+min_value = 0.005
+max_value = 0.08
+step = 0.002
+value = 0.025
+
+[node name="SensBox" type="VBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="SensRow" type="HBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/SensBox"]
+layout_mode = 2
+
+[node name="SensTitle" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/SensBox/SensRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "Microphone Sensitivity:"
+
+[node name="SensitivityValLabel" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/SensBox/SensRow" unique_id=987654327]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.95, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "Normal (1.0x)"
+
+[node name="SensitivitySlider" type="HSlider" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/SensBox" unique_id=987654328]
+layout_mode = 2
+min_value = 0.4
+max_value = 2.5
+step = 0.1
+value = 1.0
+
+[node name="DontShowRow" type="HBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="CalibDontShowCheck" type="CheckBox" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/DontShowRow" unique_id=987654333]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Don't show this setup screen on startup again (always available in Options)"
+
+[node name="ProceedButton" type="Button" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox" unique_id=987654331]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_slide_btn_primary")
+theme_override_font_sizes/font_size = 14
+text = "PROCEED ➔"
+
+[connection signal="pressed" from="CenterContainer/VBoxContainer/MainButtons/PlayAloneButton" to="." method="_on_campaign_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/CampaignPanel/CampaignActions/ContinueGameButton" to="." method="_on_load_game_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/CampaignPanel/CampaignActions/NewGameButton" to="." method="_on_new_game_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/CampaignPanel/CampaignActions/BackFromCampaignButton" to="." method="_on_back_from_campaign_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/CampaignPanel/NewGameConfirmBox/ConfirmButtonsRow/ConfirmNewGameButton" to="." method="_on_confirm_new_game_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/CampaignPanel/NewGameConfirmBox/ConfirmButtonsRow/CancelNewGameButton" to="." method="_on_cancel_new_game_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/MainButtons/MultiplayerButton" to="." method="_on_multiplayer_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/MainButtons/OptionsButton" to="." method="_on_options_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/MainButtons/QuitButton" to="." method="_on_quit_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/MultiplayerPanel/HostCoopButton" to="." method="_on_host_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/MultiplayerPanel/JoinCoopButton" to="." method="_on_join_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/MultiplayerPanel/BackFromMultiplayerButton" to="." method="_on_back_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HostSetupPanel/StartHostButton" to="." method="_on_start_host_session_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HostSetupPanel/BackFromHostSetupButton" to="." method="_on_back_to_multiplayer_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/JoinMethodsPanel/JoinOnlineButton" to="." method="_on_join_method_online_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/JoinMethodsPanel/JoinLanButton" to="." method="_on_join_method_lan_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/JoinMethodsPanel/BackFromJoinMethodsButton" to="." method="_on_back_to_multiplayer_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeRow/PasteCodeButton" to="." method="_on_paste_code_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/JoinRoomCodePanel/JoinRoomCodeButton" to="." method="_on_join_room_code_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/JoinRoomCodePanel/BackFromRoomCodeButton" to="." method="_on_back_to_join_methods_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/JoinLanPanel/RefreshLanButton" to="." method="_on_refresh_lan_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/JoinLanPanel/BackFromLanButton" to="." method="_on_back_to_join_methods_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/LobbyPanel/RoomCodeCard/LobbyCodeRow/CopyCodeButton" to="." method="_on_copy_code_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/LobbyPanel/LobbyIpRow/CopyIpButton" to="." method="_on_copy_ip_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/LobbyPanel/LobbyButtonsBox/ReadyButton" to="." method="_on_ready_button_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/LobbyPanel/LobbyButtonsBox/StartGameButton" to="." method="_on_start_game_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/LobbyPanel/LobbyButtonsBox/MatchSettingsButton" to="." method="_on_match_settings_button_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/LobbyPanel/LobbyButtonsBox/LeaveLobbyButton" to="." method="_on_leave_lobby_pressed"]
+[connection signal="item_selected" from="CenterContainer/VBoxContainer/OptionsPanel/VoiceBox/VoiceModeOption" to="." method="_on_voice_mode_selected"]
+[connection signal="toggled" from="CenterContainer/VBoxContainer/OptionsPanel/CrosshairBox/CrosshairCheck" to="." method="_on_crosshair_toggled"]
+[connection signal="item_selected" from="CenterContainer/VBoxContainer/OptionsPanel/TouchSizeBox/TouchSizeOption" to="." method="_on_touch_size_selected"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/OptionsPanel/BackFromOptionsButton" to="." method="_on_back_pressed"]
+[connection signal="pressed" from="MatchSettingsModal/ModalCenter/ModalCard/ModalVBox/ModalDoneButton" to="." method="_on_modal_done_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/OptionsPanel/MicBox/CalibrateMicButton" to="." method="_on_calibrate_mic_button_pressed"]
+[connection signal="pressed" from="MicCalibrationScreen/CenterContainer/MainCard/VBox/AutoCalibVBox/AutoCalibButton" to="." method="_on_auto_calib_button_pressed"]
+[connection signal="value_changed" from="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/GateBox/ThresholdSlider" to="." method="_on_calib_threshold_changed"]
+[connection signal="value_changed" from="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/SensBox/SensitivitySlider" to="." method="_on_calib_sensitivity_changed"]
+[connection signal="pressed" from="MicCalibrationScreen/CenterContainer/MainCard/VBox/ManualAdjustButton" to="." method="_on_manual_adjust_button_pressed"]
+[connection signal="pressed" from="MicCalibrationScreen/CenterContainer/MainCard/VBox/ProceedButton" to="." method="_on_save_calib_button_pressed"]

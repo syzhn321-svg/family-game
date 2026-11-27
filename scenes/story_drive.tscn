@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://dsdkob67rnku5"]
+
+[ext_resource type="Script" path="res://scripts/story_drive.gd" id="1_drive"]
+
+[node name="StoryDrive" type="Node3D"]
+script = ExtResource("1_drive")
+
+[node name="CutsceneCamera" type="Camera3D" parent="."]
+current = true
+fov = 68.0
+near = 0.1
+far = 450.0
