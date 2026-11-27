@@ -98,9 +98,24 @@ var mic_sensitivity: float = 1.0
 const VAD_HOLD_TIME: float = 0.35
 var vad_timer: float = 0.0
 var voice_timer: float = 0.0
-const VOICE_CHUNK_INTERVAL: float = 0.04
 var remote_talking_timer: float = 0.0
-var voice_frame_accumulator: PackedVector2Array = PackedVector2Array()
+
+# AAA VOIP Pipeline Standards (Opus Wideband Standard: 24kHz Mono 16-bit PCM)
+const VOICE_SAMPLE_RATE: float = 24000.0
+const VOICE_CHUNK_INTERVAL: float = 0.04   # 40ms audio chunks
+const VOICE_CHUNK_SAMPLES: int = 960        # 24000 * 0.04 = 960 samples
+const VOICE_CHUNK_BYTES: int = 1920         # 960 samples * 2 bytes
+const PRE_BUFFER_MAX_BYTES: int = 3840      # 80ms pre-roll to capture leading consonants
+
+var voice_pre_buffer: PackedByteArray = PackedByteArray()
+var voice_outgoing_pcm: PackedByteArray = PackedByteArray()
+var _was_transmitting: bool = false
+
+# Receiver Jitter Buffer Queue (Zero frame drops, jitter-absorbed streaming)
+var voice_jitter_queue: PackedFloat32Array = PackedFloat32Array()
+var voice_jitter_primed: bool = false
+const JITTER_PRE_ROLL_SAMPLES: int = 1440   # 60ms target pre-roll buffer
+const JITTER_MAX_SAMPLES: int = 12000       # 500ms max buffer cap (prevents lag accumulation)
 
 # --- Identity & Host Sync ---
 var crosshair_enabled: bool = true
@@ -1363,7 +1378,7 @@ func _physics_process(delta: float) -> void:
 		crosshair_ring.visible = show_ring
 
 
-# --- Proximity Voice Chat System ---
+# --- Proximity Voice Chat System (AAA Studio Jitter-Buffered VOIP) ---
 func _setup_voice_capture() -> void:
 	if not is_multiplayer_authority():
 		return
@@ -1388,6 +1403,12 @@ func _setup_voice_capture() -> void:
 
 func _setup_voice_playback() -> void:
 	if voice_player_3d:
+		var gen := voice_player_3d.stream as AudioStreamGenerator
+		if not gen:
+			gen = AudioStreamGenerator.new()
+			voice_player_3d.stream = gen
+		gen.mix_rate = VOICE_SAMPLE_RATE
+		gen.buffer_length = 0.5
 		if not voice_player_3d.playing:
 			voice_player_3d.play()
 		voice_generator_playback = voice_player_3d.get_stream_playback() as AudioStreamGeneratorPlayback
@@ -1399,26 +1420,53 @@ func _linear_to_db(lin: float) -> float:
 	return 20.0 * (log(lin) / log(10.0))
 
 
+func _resample_audio_to_mono_pcm16(source_frames: PackedVector2Array, src_rate: float, dst_rate: float) -> PackedByteArray:
+	if source_frames.is_empty() or src_rate <= 0.0 or dst_rate <= 0.0:
+		return PackedByteArray()
+	var ratio: float = src_rate / dst_rate
+	var out_sample_count: int = int(float(source_frames.size()) / ratio)
+	if out_sample_count <= 0:
+		return PackedByteArray()
+	var out_bytes := PackedByteArray()
+	out_bytes.resize(out_sample_count * 2)
+	var src_count: int = source_frames.size()
+	for j in range(out_sample_count):
+		var pos: float = float(j) * ratio
+		var idx0: int = int(pos)
+		var idx1: int = mini(idx0 + 1, src_count - 1)
+		var frac: float = pos - float(idx0)
+		var s0: float = (source_frames[idx0].x + source_frames[idx0].y) * 0.5
+		var s1: float = (source_frames[idx1].x + source_frames[idx1].y) * 0.5
+		var mono: float = lerpf(s0, s1, frac) * mic_sensitivity
+		var int16: int = clampi(int(mono * 32767.0), -32768, 32767)
+		if int16 < 0:
+			int16 += 65536
+		var b_idx: int = j * 2
+		out_bytes[b_idx] = int16 & 0xFF
+		out_bytes[b_idx + 1] = (int16 >> 8) & 0xFF
+	return out_bytes
+
+
 func _process_voice_chat(delta: float) -> void:
 	if not is_multiplayer_authority():
+		_process_remote_voice_playback(delta)
 		if remote_talking_timer > 0.0:
 			remote_talking_timer -= delta
 			if remote_talking_timer <= 0.0 and voice_indicator:
 				voice_indicator.visible = false
 		return
 
-	var buffer: PackedVector2Array = PackedVector2Array()
+	var raw_frames := PackedVector2Array()
 	var rms: float = 0.0
 	if voice_capture_effect:
 		var frames_avail := voice_capture_effect.get_frames_available()
 		if frames_avail > 0:
-			buffer = voice_capture_effect.get_buffer(frames_avail)
-			voice_frame_accumulator.append_array(buffer)
+			raw_frames = voice_capture_effect.get_buffer(frames_avail)
 			var sum_sq: float = 0.0
-			for frame in buffer:
+			for frame in raw_frames:
 				var mono := (frame.x + frame.y) * 0.5
 				sum_sq += mono * mono
-			rms = sqrt(sum_sq / float(buffer.size())) if buffer.size() > 0 else 0.0
+			rms = sqrt(sum_sq / float(raw_frames.size())) if raw_frames.size() > 0 else 0.0
 
 	var current_db := _linear_to_db(rms * mic_sensitivity)
 
@@ -1443,46 +1491,48 @@ func _process_voice_chat(delta: float) -> void:
 
 	_update_voice_hud_status(should_transmit, rms)
 
+	# Continuous Resampling from hardware mix rate to 24kHz 16-bit PCM
+	var new_pcm := PackedByteArray()
+	if not raw_frames.is_empty():
+		var hw_mix_rate: float = float(AudioServer.get_mix_rate())
+		new_pcm = _resample_audio_to_mono_pcm16(raw_frames, hw_mix_rate, VOICE_SAMPLE_RATE)
+
 	if should_transmit:
-		# Calibrated speech volume above gate in dB space
-		# -36 dB to -10 dB mapped smoothly to 0.20 to 1.00
 		var speech_loudness: float = clampf((current_db + 45.0) / 35.0, 0.15, 1.0)
 		noise_impulse = maxf(noise_impulse, speech_loudness)
 
+		# Prepend pre-buffer on speech onset to capture leading consonants
+		if not _was_transmitting and not voice_pre_buffer.is_empty():
+			voice_outgoing_pcm.append_array(voice_pre_buffer)
+			voice_pre_buffer.clear()
+
+		if not new_pcm.is_empty():
+			voice_outgoing_pcm.append_array(new_pcm)
+
 		voice_timer += delta
-		if voice_timer >= VOICE_CHUNK_INTERVAL:
+		if voice_timer >= VOICE_CHUNK_INTERVAL and voice_outgoing_pcm.size() >= VOICE_CHUNK_BYTES:
 			voice_timer = 0.0
-			if not voice_frame_accumulator.is_empty():
-				_send_voice_buffer(voice_frame_accumulator)
-				voice_frame_accumulator.clear()
+			while voice_outgoing_pcm.size() >= VOICE_CHUNK_BYTES:
+				var chunk: PackedByteArray = voice_outgoing_pcm.slice(0, VOICE_CHUNK_BYTES)
+				voice_outgoing_pcm = voice_outgoing_pcm.slice(VOICE_CHUNK_BYTES)
+				_send_voice_chunk(chunk)
 	else:
 		voice_timer = 0.0
-		# Do not accumulate background room noise while gate is closed
-		voice_frame_accumulator.clear()
+		# While silent, maintain rolling pre-buffer (~80ms) for consonant capture
+		if not new_pcm.is_empty():
+			voice_pre_buffer.append_array(new_pcm)
+			if voice_pre_buffer.size() > PRE_BUFFER_MAX_BYTES:
+				voice_pre_buffer = voice_pre_buffer.slice(voice_pre_buffer.size() - PRE_BUFFER_MAX_BYTES)
+		voice_outgoing_pcm.clear()
+
+	_was_transmitting = should_transmit
 
 
-func _send_voice_buffer(buffer: PackedVector2Array) -> void:
-	if buffer.is_empty():
+func _send_voice_chunk(pcm_bytes: PackedByteArray) -> void:
+	if pcm_bytes.is_empty():
 		return
-
-	# Downsample 44.1kHz stereo to 22.05kHz mono 16-bit PCM (take every 2nd frame)
-	var raw_bytes := PackedByteArray()
-	var half_size: int = buffer.size() / 2
-	raw_bytes.resize(half_size * 2)
-
-	for i in range(half_size):
-		var src_idx := i * 2
-		var mono := (buffer[src_idx].x + buffer[src_idx].y) * 0.5
-		var int16 := clampi(int(mono * 32767.0), -32768, 32767)
-		if int16 < 0:
-			int16 += 65536
-		var byte_pos := i * 2
-		raw_bytes[byte_pos] = int16 & 0xFF
-		raw_bytes[byte_pos + 1] = (int16 >> 8) & 0xFF
-
-	var uncompressed_size := raw_bytes.size()
-	var compressed := raw_bytes.compress(FileAccess.COMPRESSION_FASTLZ)
-	
+	var uncompressed_size := pcm_bytes.size()
+	var compressed := pcm_bytes.compress(FileAccess.COMPRESSION_FASTLZ)
 	receive_voice_chunk.rpc(compressed, uncompressed_size)
 
 
@@ -1493,31 +1543,67 @@ func receive_voice_chunk(compressed_chunk: PackedByteArray, uncompressed_size: i
 
 	if not voice_generator_playback:
 		_setup_voice_playback()
-	if not voice_generator_playback:
-		return
 
 	# Display 3D talking indicator above player's head
 	if voice_indicator:
 		voice_indicator.visible = true
-		remote_talking_timer = 0.25
+		remote_talking_timer = 0.35
 
 	var raw_bytes := compressed_chunk.decompress(uncompressed_size, FileAccess.COMPRESSION_FASTLZ)
 	if raw_bytes.is_empty():
 		return
 
-	var num_samples := raw_bytes.size() / 2
-	var frames_avail := voice_generator_playback.get_frames_available()
-	var to_push := mini(num_samples, frames_avail)
+	var num_samples: int = raw_bytes.size() / 2
+	var new_samples := PackedFloat32Array()
+	new_samples.resize(num_samples)
 
-	for i in range(to_push):
-		var byte_idx := i * 2
-		var low := raw_bytes[byte_idx]
-		var high := raw_bytes[byte_idx + 1]
-		var int16 := low | (high << 8)
+	for i in range(num_samples):
+		var byte_idx: int = i * 2
+		var low: int = raw_bytes[byte_idx]
+		var high: int = raw_bytes[byte_idx + 1]
+		var int16: int = low | (high << 8)
 		if int16 >= 32768:
 			int16 -= 65536
-		var sample := float(int16) / 32767.0
-		voice_generator_playback.push_frame(Vector2(sample, sample))
+		new_samples[i] = float(int16) / 32767.0
+
+	voice_jitter_queue.append_array(new_samples)
+
+
+func _process_remote_voice_playback(_delta: float) -> void:
+	if not voice_generator_playback:
+		_setup_voice_playback()
+	if not voice_generator_playback:
+		return
+
+	if voice_jitter_queue.is_empty():
+		voice_jitter_primed = false
+		return
+
+	# Pre-roll threshold to absorb initial packet arrival jitter without starving
+	if not voice_jitter_primed:
+		if voice_jitter_queue.size() >= JITTER_PRE_ROLL_SAMPLES:
+			voice_jitter_primed = true
+		else:
+			return
+
+	# Bound maximum latency during network spikes
+	if voice_jitter_queue.size() > JITTER_MAX_SAMPLES:
+		voice_jitter_queue = voice_jitter_queue.slice(voice_jitter_queue.size() - JITTER_MAX_SAMPLES)
+
+	var frames_avail: int = voice_generator_playback.get_frames_available()
+	if frames_avail <= 0:
+		return
+
+	var count_to_push: int = mini(frames_avail, voice_jitter_queue.size())
+	for i in range(count_to_push):
+		var s: float = voice_jitter_queue[i]
+		voice_generator_playback.push_frame(Vector2(s, s))
+
+	if count_to_push == voice_jitter_queue.size():
+		voice_jitter_queue.clear()
+		voice_jitter_primed = false
+	else:
+		voice_jitter_queue = voice_jitter_queue.slice(count_to_push)
 
 
 func _update_voice_hud_status(is_transmitting: bool, volume: float) -> void:

@@ -36,7 +36,7 @@ extends Control
 @onready var player_name_box: Control = get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox") if get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox") != null else get_node_or_null("CenterContainer/VBoxContainer/PlayerNameBox")
 @onready var player_name_sep: HSeparator = get_node_or_null("CenterContainer/VBoxContainer/HSeparator")
 @onready var player_name_input: LineEdit = get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox/PlayerNameInput") if get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox/PlayerNameInput") != null else get_node_or_null("CenterContainer/VBoxContainer/PlayerNameBox/PlayerNameInput")
-@onready var options_player_name_input: LineEdit = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/IdentityBox/OptionsPlayerNameInput")
+@onready var options_player_name_input: LineEdit = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/IdentityBox/OptionsPlayerNameInput") if get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/IdentityBox/OptionsPlayerNameInput") != null else get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/IdentityBox/OptionsPlayerNameInput")
 @onready var multiplayer_button: Button = get_node_or_null("CenterContainer/VBoxContainer/MainButtons/MultiplayerButton")
 @onready var options_button: Button = get_node_or_null("CenterContainer/VBoxContainer/MainButtons/OptionsButton")
 @onready var quit_button: Button = get_node_or_null("CenterContainer/VBoxContainer/MainButtons/QuitButton")
@@ -77,13 +77,13 @@ var force_mobile_layout: bool = false
 @onready var refresh_lan_button: Button = $CenterContainer/VBoxContainer/JoinLanPanel/RefreshLanButton
 
 # Options UI nodes
-@onready var voice_mode_option: OptionButton = $CenterContainer/VBoxContainer/OptionsPanel/VoiceBox/VoiceModeOption
-@onready var crosshair_check: CheckBox = $CenterContainer/VBoxContainer/OptionsPanel/CrosshairBox/CrosshairCheck
-@onready var mobile_section: Control = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/MobileSection")
-@onready var touch_size_option: OptionButton = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/MobileSection/TouchSizeBox/TouchSizeOption")
-@onready var windows_section: Control = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/WindowsSection")
-@onready var display_mode_option: OptionButton = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/WindowsSection/DisplayModeBox/DisplayModeOption")
-@onready var vsync_check: CheckBox = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/WindowsSection/VsyncBox/VsyncCheck")
+@onready var voice_mode_option: OptionButton = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/VoiceBox/VoiceModeOption") if get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/VoiceBox/VoiceModeOption") != null else get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/VoiceBox/VoiceModeOption")
+@onready var crosshair_check: CheckBox = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/CrosshairBox/CrosshairCheck") if get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/CrosshairBox/CrosshairCheck") != null else get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/CrosshairBox/CrosshairCheck")
+@onready var mobile_section: Control = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/MobileSection") if get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/MobileSection") != null else get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/MobileSection")
+@onready var touch_size_option: OptionButton = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/MobileSection/TouchSizeBox/TouchSizeOption") if get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/MobileSection/TouchSizeBox/TouchSizeOption") != null else get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/MobileSection/TouchSizeBox/TouchSizeOption")
+@onready var windows_section: Control = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/WindowsSection") if get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/WindowsSection") != null else get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/WindowsSection")
+@onready var display_mode_option: OptionButton = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/WindowsSection/DisplayModeBox/DisplayModeOption") if get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/WindowsSection/DisplayModeBox/DisplayModeOption") != null else get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/WindowsSection/DisplayModeBox/DisplayModeOption")
+@onready var vsync_check: CheckBox = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/WindowsSection/VsyncBox/VsyncCheck") if get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/WindowsSection/VsyncBox/VsyncCheck") != null else get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/WindowsSection/VsyncBox/VsyncCheck")
 
 # Lobby UI nodes
 @onready var lobby_title: Label = $CenterContainer/VBoxContainer/LobbyPanel/LobbyHeader/LobbyTitle
@@ -145,8 +145,8 @@ const GITHUB_RELEASES_URL: String = "https://api.github.com/repos/syzhn321-svg/f
 @onready var update_modal_version: Label = get_node_or_null("UpdateModal/ModalCenter/ModalCard/ModalVBox/TitleBox/ModalVersionLabel")
 @onready var update_modal_desc: Label = get_node_or_null("UpdateModal/ModalCenter/ModalCard/ModalVBox/ModalDesc")
 @onready var update_checker: HTTPRequest = get_node_or_null("UpdateChecker")
-@onready var check_updates_button: Button = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/UpdateBox/CheckUpdatesButton")
-@onready var update_version_label: Label = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/UpdateBox/UpdateVersionLabel")
+@onready var check_updates_button: Button = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/UpdateBox/CheckUpdatesButton") if get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/UpdateBox/CheckUpdatesButton") != null else get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/UpdateBox/CheckUpdatesButton")
+@onready var update_version_label: Label = null
 
 var is_manual_update_check: bool = false
 var pending_update_download_url: String = ""
@@ -443,7 +443,7 @@ func _apply_mobile_ui_scaling() -> void:
 		get_node_or_null("CenterContainer/VBoxContainer/JoinLanPanel/BackFromLanButton"),
 		get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/BackFromOptionsButton"),
 		refresh_lan_button,
-		get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/MicBox/CalibrateMicButton"),
+		(get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/MicBox/CalibrateMicButton") if get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsScroll/OptionsVBox/MicBox/CalibrateMicButton") != null else get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/MicBox/CalibrateMicButton")),
 		check_updates_button
 	]
 	for btn in secondary_buttons:
@@ -594,6 +594,21 @@ func _update_subpanel_layout() -> void:
 		if mobile_header: mobile_header.visible = false
 		if mobile_back_button: mobile_back_button.visible = false
 		if vbox_container: vbox_container.custom_minimum_size = Vector2(520, 0)
+
+	# Hide redundant bottom centered BACK buttons on mobile view (mobile uses top-left < BACK).
+	# Keep bottom centered BACK buttons on desktop/PC view.
+	var bottom_back_buttons: Array = [
+		get_node_or_null("CenterContainer/VBoxContainer/MultiplayerPanel/BackFromMultiplayerButton"),
+		get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/BackFromHostSetupButton"),
+		get_node_or_null("CenterContainer/VBoxContainer/JoinMethodsPanel/BackFromJoinMethodsButton"),
+		get_node_or_null("CenterContainer/VBoxContainer/JoinRoomCodePanel/BackFromRoomCodeButton"),
+		get_node_or_null("CenterContainer/VBoxContainer/JoinLanPanel/BackFromLanButton"),
+		get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/BackFromOptionsButton"),
+		get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/HSeparatorOptions"),
+	]
+	for btn in bottom_back_buttons:
+		if btn and is_instance_valid(btn):
+			btn.visible = not is_mobile
 
 
 # --- Navigation Helpers ---
