@@ -91,19 +91,20 @@ extends Control
 @onready var modal_done_button: Button = get_node_or_null("MatchSettingsModal/ModalCenter/ModalCard/ModalVBox/ModalDoneButton")
 
 # Mic Calibration Fullscreen Slide nodes
-@onready var mic_calib_screen: Control = get_node_or_null("MicCalibrationScreen")
-@onready var calib_meter_status: Label = get_node_or_null("MicCalibrationScreen/CenterContainer/MainCard/VBox/LiveMeterVBox/MeterRow/MeterStatus")
-@onready var calib_progress_bar: ProgressBar = get_node_or_null("MicCalibrationScreen/CenterContainer/MainCard/VBox/LiveMeterVBox/CalibProgressBar")
-@onready var manual_adjust_button: Button = get_node_or_null("MicCalibrationScreen/CenterContainer/MainCard/VBox/ManualAdjustButton")
-@onready var sliders_vbox: VBoxContainer = get_node_or_null("MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox")
-@onready var calib_threshold_slider: HSlider = get_node_or_null("MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/GateBox/ThresholdSlider")
-@onready var calib_threshold_val: Label = get_node_or_null("MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/GateBox/GateRow/ThresholdValLabel")
-@onready var calib_sens_slider: HSlider = get_node_or_null("MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/SensBox/SensitivitySlider")
-@onready var calib_sens_val: Label = get_node_or_null("MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/SensBox/SensRow/SensitivityValLabel")
-@onready var calib_auto_button: Button = get_node_or_null("MicCalibrationScreen/CenterContainer/MainCard/VBox/AutoCalibVBox/AutoCalibButton")
-@onready var calib_auto_status: Label = get_node_or_null("MicCalibrationScreen/CenterContainer/MainCard/VBox/AutoCalibVBox/AutoCalibStatus")
-@onready var calib_dont_show_check: CheckBox = get_node_or_null("MicCalibrationScreen/CenterContainer/MainCard/VBox/DontShowRow/CalibDontShowCheck")
-@onready var save_calib_button: Button = get_node_or_null("MicCalibrationScreen/CenterContainer/MainCard/VBox/ProceedButton")
+@onready var mic_calib_panel: VBoxContainer = get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel")
+@onready var mic_calib_screen: Control = mic_calib_panel
+@onready var calib_meter_status: Label = get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel/LiveMeterRow/MeterStatus")
+@onready var calib_progress_bar: ProgressBar = get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel/CalibProgressBar")
+@onready var manual_adjust_button: Button = get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel/ManualAdjustButton")
+@onready var sliders_vbox: VBoxContainer = get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox")
+@onready var calib_threshold_slider: HSlider = get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox/GateRow/ThresholdSlider")
+@onready var calib_threshold_val: Label = get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox/GateRow/ThresholdValLabel")
+@onready var calib_sens_slider: HSlider = get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox/SensRow/SensitivitySlider")
+@onready var calib_sens_val: Label = get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox/SensRow/SensitivityValLabel")
+@onready var calib_auto_button: Button = get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel/AutoCalibBox/AutoCalibButton")
+@onready var calib_auto_status: Label = get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel/AutoCalibBox/AutoCalibStatus")
+@onready var calib_dont_show_check: CheckBox = get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel/DontShowRow/CalibDontShowCheck")
+@onready var save_calib_button: Button = get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel/ProceedButton")
 @onready var proceed_button: Button = save_calib_button
 @onready var skip_calib_button: Button = null
 
@@ -1237,6 +1238,12 @@ func _on_server_disconnected() -> void:
 func _open_mic_calibration_screen(is_startup: bool = false) -> void:
 	is_calib_opened_from_options = not is_startup
 	_hide_all_panels()
+	if main_subtitle:
+		main_subtitle.text = "CO-OP ESCAPE"
+	if player_name_box:
+		player_name_box.visible = false
+	if player_name_sep:
+		player_name_sep.visible = false
 	
 	var net := get_node_or_null("/root/NetworkManager")
 	var curr_thresh: float = 0.025
@@ -1264,13 +1271,13 @@ func _open_mic_calibration_screen(is_startup: bool = false) -> void:
 		manual_adjust_button.text = "Show Manual Adjustments"
 
 	if save_calib_button:
-		save_calib_button.text = "PROCEED"
+		save_calib_button.text = "PROCEED" if is_startup else "BACK"
 
 	_setup_calib_microphone()
 	is_auto_calibrating = false
 	if calib_auto_status:
-		calib_auto_status.text = "Stay quiet and click to sample & filter ambient fans/room noise."
-		calib_auto_status.add_theme_color_override("font_color", Color(0.6, 0.66, 0.76))
+		calib_auto_status.text = "Stay quiet and click to sample and filter ambient room noise."
+		calib_auto_status.add_theme_color_override("font_color", Color(0.55, 0.6, 0.7))
 	if calib_auto_button:
 		calib_auto_button.disabled = false
 		calib_auto_button.text = "Auto-Detect Background Noise"
@@ -1391,28 +1398,24 @@ func _process_mic_calibration(delta: float) -> void:
 func _update_threshold_label(val: float) -> void:
 	if not calib_threshold_val:
 		return
+	calib_threshold_val.text = "%d%%" % int(round(val * 1000.0))
 	if val < 0.015:
-		calib_threshold_val.text = "Low / Sensitive (%d%%)" % int(round(val * 1000.0))
 		calib_threshold_val.add_theme_color_override("font_color", Color(0.9, 0.7, 0.4))
 	elif val > 0.035:
-		calib_threshold_val.text = "High / Heavy Filter (%d%%)" % int(round(val * 1000.0))
 		calib_threshold_val.add_theme_color_override("font_color", Color(0.95, 0.5, 0.5))
 	else:
-		calib_threshold_val.text = "Medium / Recommended (%d%%)" % int(round(val * 1000.0))
 		calib_threshold_val.add_theme_color_override("font_color", Color(0.4, 0.95, 0.6))
 
 
 func _update_sensitivity_label(val: float) -> void:
 	if not calib_sens_val:
 		return
+	calib_sens_val.text = "%.1fx" % val
 	if val < 0.85:
-		calib_sens_val.text = "Quiet (%.1fx)" % val
 		calib_sens_val.add_theme_color_override("font_color", Color(0.8, 0.85, 0.9))
 	elif val > 1.25:
-		calib_sens_val.text = "Boosted (%.1fx)" % val
 		calib_sens_val.add_theme_color_override("font_color", Color(0.95, 0.75, 0.45))
 	else:
-		calib_sens_val.text = "Normal (%.1fx)" % val
 		calib_sens_val.add_theme_color_override("font_color", Color(0.4, 0.95, 0.6))
 
 

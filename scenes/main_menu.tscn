@@ -99,87 +99,18 @@ corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_calib_bg"]
-bg_color = Color(0.06, 0.08, 0.11, 0.9)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+bg_color = Color(0.08, 0.09, 0.12, 0.9)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_calib_fill"]
-bg_color = Color(0.25, 0.85, 0.55, 0.9)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slide_card"]
-content_margin_left = 32.0
-content_margin_top = 28.0
-content_margin_right = 32.0
-content_margin_bottom = 28.0
-bg_color = Color(0.065, 0.075, 0.1, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.22, 0.27, 0.36, 0.8)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slide_sep"]
-bg_color = Color(0.2, 0.24, 0.32, 0.6)
-content_margin_top = 1.0
-content_margin_bottom = 1.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slide_btn_auto"]
-content_margin_left = 14.0
-content_margin_top = 8.0
-content_margin_right = 14.0
-content_margin_bottom = 8.0
-bg_color = Color(0.12, 0.22, 0.32, 0.95)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.3, 0.65, 0.85, 0.85)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slide_btn_secondary"]
-content_margin_left = 12.0
-content_margin_top = 6.0
-content_margin_right = 12.0
-content_margin_bottom = 6.0
-bg_color = Color(0.09, 0.11, 0.15, 0.7)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.25, 0.3, 0.4, 0.5)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slide_btn_primary"]
-content_margin_left = 14.0
-content_margin_top = 8.0
-content_margin_right = 14.0
-content_margin_bottom = 8.0
-bg_color = Color(0.18, 0.48, 0.38, 0.95)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.4, 0.9, 0.65, 0.9)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
+bg_color = Color(0.35, 0.72, 0.65, 0.85)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
 
 [node name="MainMenu" type="Control" unique_id=141184140]
 layout_mode = 3
@@ -891,6 +822,154 @@ custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 text = "BACK"
 
+[node name="MicCalibrationPanel" type="VBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=987654322]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="CalibHeader" type="Label" parent="CenterContainer/VBoxContainer/MicCalibrationPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "MICROPHONE CALIBRATION"
+horizontal_alignment = 1
+
+[node name="CalibHint" type="Label" parent="CenterContainer/VBoxContainer/MicCalibrationPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.6, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Sound attracts entities in the house. Calibrate your microphone so ambient room noise won't give away your position."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="LiveSectionLabel" type="Label" parent="CenterContainer/VBoxContainer/MicCalibrationPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.65, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "LIVE MICROPHONE LEVEL"
+
+[node name="LiveMeterRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/MicCalibrationPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MeterLabel" type="Label" parent="CenterContainer/VBoxContainer/MicCalibrationPanel/LiveMeterRow"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Input Level:"
+
+[node name="MeterStatus" type="Label" parent="CenterContainer/VBoxContainer/MicCalibrationPanel/LiveMeterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.4, 0.95, 0.6, 1)
+theme_override_font_sizes/font_size = 13
+text = "Safe (Filtered)"
+horizontal_alignment = 2
+
+[node name="CalibProgressBar" type="ProgressBar" parent="CenterContainer/VBoxContainer/MicCalibrationPanel"]
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_calib_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_calib_fill")
+max_value = 100.0
+show_percentage = false
+
+[node name="AutoCalibBox" type="VBoxContainer" parent="CenterContainer/VBoxContainer/MicCalibrationPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="AutoCalibButton" type="Button" parent="CenterContainer/VBoxContainer/MicCalibrationPanel/AutoCalibBox"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "Auto-Detect Background Noise"
+
+[node name="AutoCalibStatus" type="Label" parent="CenterContainer/VBoxContainer/MicCalibrationPanel/AutoCalibBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.6, 0.7, 1)
+theme_override_font_sizes/font_size = 11
+text = "Stay quiet and click to sample and filter ambient room noise."
+horizontal_alignment = 1
+
+[node name="ManualAdjustButton" type="Button" parent="CenterContainer/VBoxContainer/MicCalibrationPanel"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "Show Manual Adjustments"
+
+[node name="SlidersVBox" type="VBoxContainer" parent="CenterContainer/VBoxContainer/MicCalibrationPanel"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="GateRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="GateTitle" type="Label" parent="CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox/GateRow"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Noise Filter Gate:"
+
+[node name="ThresholdSlider" type="HSlider" parent="CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox/GateRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 0.005
+max_value = 0.08
+step = 0.002
+value = 0.025
+
+[node name="ThresholdValLabel" type="Label" parent="CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox/GateRow"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.95, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "25%"
+horizontal_alignment = 2
+
+[node name="SensRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SensTitle" type="Label" parent="CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox/SensRow"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Mic Sensitivity:"
+
+[node name="SensitivitySlider" type="HSlider" parent="CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox/SensRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 0.4
+max_value = 2.5
+step = 0.1
+value = 1.0
+
+[node name="SensitivityValLabel" type="Label" parent="CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox/SensRow"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.95, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "1.0x"
+horizontal_alignment = 2
+
+[node name="DontShowRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/MicCalibrationPanel"]
+layout_mode = 2
+alignment = 1
+
+[node name="CalibDontShowCheck" type="CheckBox" parent="CenterContainer/VBoxContainer/MicCalibrationPanel/DontShowRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Don't show this setup on startup again"
+
+[node name="HSeparatorCalib" type="HSeparator" parent="CenterContainer/VBoxContainer/MicCalibrationPanel"]
+layout_mode = 2
+
+[node name="ProceedButton" type="Button" parent="CenterContainer/VBoxContainer/MicCalibrationPanel" unique_id=987654331]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "BACK"
+
 [node name="MatchSettingsModal" type="ColorRect" parent="." unique_id=987654321]
 visible = false
 layout_mode = 1
@@ -976,191 +1055,6 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 text = "DONE"
 
-[node name="MicCalibrationScreen" type="Control" parent="." unique_id=987654322]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Background" type="ColorRect" parent="MicCalibrationScreen"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.04, 0.045, 0.06, 1)
-
-[node name="CenterContainer" type="CenterContainer" parent="MicCalibrationScreen"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="MainCard" type="PanelContainer" parent="MicCalibrationScreen/CenterContainer"]
-custom_minimum_size = Vector2(620, 0)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_slide_card")
-
-[node name="VBox" type="VBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard"]
-layout_mode = 2
-theme_override_constants/separation = 18
-
-[node name="HeaderBox" type="VBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Title" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/HeaderBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.94, 0.95, 0.98, 1)
-theme_override_font_sizes/font_size = 24
-text = "MICROPHONE SETUP"
-horizontal_alignment = 1
-
-[node name="Subtitle" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/HeaderBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.7, 0.8, 1)
-theme_override_font_sizes/font_size = 12
-text = "Entities in the house react to your voice.
-Calibrate your microphone so background noise won't give you away."
-horizontal_alignment = 1
-
-[node name="HeaderSep" type="HSeparator" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/HeaderBox"]
-layout_mode = 2
-theme_override_styles/separator = SubResource("StyleBoxFlat_slide_sep")
-
-[node name="LiveMeterVBox" type="VBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="MeterRow" type="HBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/LiveMeterVBox"]
-layout_mode = 2
-
-[node name="MeterTitle" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/LiveMeterVBox/MeterRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.85, 0.88, 0.94, 1)
-theme_override_font_sizes/font_size = 13
-text = "Live Microphone Level:"
-
-[node name="MeterStatus" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/LiveMeterVBox/MeterRow" unique_id=987654323]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 13
-text = "Safe (Filtered)"
-
-[node name="CalibProgressBar" type="ProgressBar" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/LiveMeterVBox" unique_id=987654324]
-custom_minimum_size = Vector2(0, 18)
-layout_mode = 2
-theme_override_styles/background = SubResource("StyleBoxFlat_calib_bg")
-theme_override_styles/fill = SubResource("StyleBoxFlat_calib_fill")
-max_value = 100.0
-show_percentage = false
-
-[node name="AutoCalibVBox" type="VBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="AutoCalibButton" type="Button" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/AutoCalibVBox" unique_id=987654329]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_slide_btn_auto")
-theme_override_font_sizes/font_size = 13
-text = "Auto-Detect Background Noise"
-
-[node name="AutoCalibStatus" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/AutoCalibVBox" unique_id=987654332]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.66, 0.76, 1)
-theme_override_font_sizes/font_size = 11
-text = "Stay quiet and click to sample & filter ambient fans/room noise."
-horizontal_alignment = 1
-
-[node name="ManualAdjustButton" type="Button" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox" unique_id=987654334]
-custom_minimum_size = Vector2(0, 32)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.78, 0.9, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_slide_btn_secondary")
-theme_override_font_sizes/font_size = 11
-text = "Show Manual Adjustments"
-
-[node name="SlidersVBox" type="VBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox" unique_id=987654335]
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="GateBox" type="VBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox"]
-layout_mode = 2
-theme_override_constants/separation = 3
-
-[node name="GateRow" type="HBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/GateBox"]
-layout_mode = 2
-
-[node name="GateTitle" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/GateBox/GateRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 12
-text = "Noise Filter Gate:"
-
-[node name="ThresholdValLabel" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/GateBox/GateRow" unique_id=987654325]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 12
-text = "Medium / Recommended"
-
-[node name="ThresholdSlider" type="HSlider" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/GateBox" unique_id=987654326]
-layout_mode = 2
-min_value = 0.005
-max_value = 0.08
-step = 0.002
-value = 0.025
-
-[node name="SensBox" type="VBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox"]
-layout_mode = 2
-theme_override_constants/separation = 3
-
-[node name="SensRow" type="HBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/SensBox"]
-layout_mode = 2
-
-[node name="SensTitle" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/SensBox/SensRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 12
-text = "Microphone Sensitivity:"
-
-[node name="SensitivityValLabel" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/SensBox/SensRow" unique_id=987654327]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 12
-text = "Normal (1.0x)"
-
-[node name="SensitivitySlider" type="HSlider" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/SensBox" unique_id=987654328]
-layout_mode = 2
-min_value = 0.4
-max_value = 2.5
-step = 0.1
-value = 1.0
-
-[node name="DontShowRow" type="HBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox"]
-layout_mode = 2
-alignment = 1
-
-[node name="CalibDontShowCheck" type="CheckBox" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/DontShowRow" unique_id=987654333]
-layout_mode = 2
-theme_override_font_sizes/font_size = 11
-text = "Don't show this setup screen on startup again (always available in Options)"
-
-[node name="ProceedButton" type="Button" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox" unique_id=987654331]
-custom_minimum_size = Vector2(0, 44)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_slide_btn_primary")
-theme_override_font_sizes/font_size = 14
-text = "PROCEED"
-
 [node name="UpdateModal" type="ColorRect" parent="." unique_id=987654340]
 visible = false
 layout_mode = 1
@@ -1224,14 +1118,12 @@ theme_override_constants/separation = 12
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_slide_btn_secondary")
 text = "LATER"
 
 [node name="DownloadButton" type="Button" parent="UpdateModal/ModalCenter/ModalCard/ModalVBox/ModalButtonsRow" unique_id=987654342]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_slide_btn_primary")
 text = "DOWNLOAD"
 
 [node name="UpdateChecker" type="HTTPRequest" parent="." unique_id=987654344]
@@ -1273,11 +1165,11 @@ timeout = 8.0
 [connection signal="pressed" from="CenterContainer/VBoxContainer/OptionsPanel/BackFromOptionsButton" to="." method="_on_back_pressed"]
 [connection signal="pressed" from="MatchSettingsModal/ModalCenter/ModalCard/ModalVBox/ModalDoneButton" to="." method="_on_modal_done_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/OptionsPanel/MicBox/CalibrateMicButton" to="." method="_on_calibrate_mic_button_pressed"]
-[connection signal="pressed" from="MicCalibrationScreen/CenterContainer/MainCard/VBox/AutoCalibVBox/AutoCalibButton" to="." method="_on_auto_calib_button_pressed"]
-[connection signal="value_changed" from="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/GateBox/ThresholdSlider" to="." method="_on_calib_threshold_changed"]
-[connection signal="value_changed" from="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/SensBox/SensitivitySlider" to="." method="_on_calib_sensitivity_changed"]
-[connection signal="pressed" from="MicCalibrationScreen/CenterContainer/MainCard/VBox/ManualAdjustButton" to="." method="_on_manual_adjust_button_pressed"]
-[connection signal="pressed" from="MicCalibrationScreen/CenterContainer/MainCard/VBox/ProceedButton" to="." method="_on_save_calib_button_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/MicCalibrationPanel/AutoCalibBox/AutoCalibButton" to="." method="_on_auto_calib_button_pressed"]
+[connection signal="value_changed" from="CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox/GateRow/ThresholdSlider" to="." method="_on_calib_threshold_changed"]
+[connection signal="value_changed" from="CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox/SensRow/SensitivitySlider" to="." method="_on_calib_sensitivity_changed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/MicCalibrationPanel/ManualAdjustButton" to="." method="_on_manual_adjust_button_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/MicCalibrationPanel/ProceedButton" to="." method="_on_save_calib_button_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/OptionsPanel/UpdateBox/CheckUpdatesButton" to="." method="_on_check_updates_button_pressed"]
 [connection signal="pressed" from="UpdateModal/ModalCenter/ModalCard/ModalVBox/ModalButtonsRow/LaterButton" to="." method="_on_update_later_pressed"]
 [connection signal="pressed" from="UpdateModal/ModalCenter/ModalCard/ModalVBox/ModalButtonsRow/DownloadButton" to="." method="_on_update_download_pressed"]
