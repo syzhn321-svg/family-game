@@ -801,6 +801,21 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Calibrate Mic 🎙️"
 
+[node name="UpdateBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="UpdateVersionLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel/UpdateBox"]
+custom_minimum_size = Vector2(130, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "v0.1.0-pre-alpha"
+
+[node name="CheckUpdatesButton" type="Button" parent="CenterContainer/VBoxContainer/OptionsPanel/UpdateBox" unique_id=987654343]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Check for Updates 🔄"
+
 [node name="HSeparatorOptions" type="HSeparator" parent="CenterContainer/VBoxContainer/OptionsPanel" unique_id=1023509240]
 layout_mode = 2
 
@@ -1079,6 +1094,82 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_slide_btn_primary")
 theme_override_font_sizes/font_size = 14
 text = "PROCEED ➔"
 
+[node name="UpdateModal" type="ColorRect" parent="." unique_id=987654340]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.78)
+
+[node name="ModalCenter" type="CenterContainer" parent="UpdateModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ModalCard" type="PanelContainer" parent="UpdateModal/ModalCenter"]
+custom_minimum_size = Vector2(460, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_card")
+
+[node name="ModalVBox" type="VBoxContainer" parent="UpdateModal/ModalCenter/ModalCard"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="TitleBox" type="VBoxContainer" parent="UpdateModal/ModalCenter/ModalCard/ModalVBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ModalTitle" type="Label" parent="UpdateModal/ModalCenter/ModalCard/ModalVBox/TitleBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "NEW UPDATE AVAILABLE"
+horizontal_alignment = 1
+
+[node name="ModalVersionLabel" type="Label" parent="UpdateModal/ModalCenter/ModalCard/ModalVBox/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.9, 0.6, 1)
+theme_override_font_sizes/font_size = 13
+text = "Version: v0.1.1"
+horizontal_alignment = 1
+
+[node name="ModalSep" type="HSeparator" parent="UpdateModal/ModalCenter/ModalCard/ModalVBox"]
+layout_mode = 2
+
+[node name="ModalDesc" type="Label" parent="UpdateModal/ModalCenter/ModalCard/ModalVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
+theme_override_font_sizes/font_size = 13
+text = "A newer build is available on GitHub with fixes and gameplay improvements. Would you like to download it now?"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="ModalButtonsRow" type="HBoxContainer" parent="UpdateModal/ModalCenter/ModalCard/ModalVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LaterButton" type="Button" parent="UpdateModal/ModalCenter/ModalCard/ModalVBox/ModalButtonsRow" unique_id=987654341]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_slide_btn_secondary")
+text = "LATER"
+
+[node name="DownloadButton" type="Button" parent="UpdateModal/ModalCenter/ModalCard/ModalVBox/ModalButtonsRow" unique_id=987654342]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_slide_btn_primary")
+text = "DOWNLOAD ➔"
+
+[node name="UpdateChecker" type="HTTPRequest" parent="." unique_id=987654344]
+timeout = 8.0
+
 [connection signal="pressed" from="CenterContainer/VBoxContainer/MainButtons/PlayAloneButton" to="." method="_on_campaign_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/CampaignPanel/CampaignActions/ContinueGameButton" to="." method="_on_load_game_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/CampaignPanel/CampaignActions/NewGameButton" to="." method="_on_new_game_pressed"]
@@ -1118,3 +1209,7 @@ text = "PROCEED ➔"
 [connection signal="value_changed" from="MicCalibrationScreen/CenterContainer/MainCard/VBox/SlidersVBox/SensBox/SensitivitySlider" to="." method="_on_calib_sensitivity_changed"]
 [connection signal="pressed" from="MicCalibrationScreen/CenterContainer/MainCard/VBox/ManualAdjustButton" to="." method="_on_manual_adjust_button_pressed"]
 [connection signal="pressed" from="MicCalibrationScreen/CenterContainer/MainCard/VBox/ProceedButton" to="." method="_on_save_calib_button_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/OptionsPanel/UpdateBox/CheckUpdatesButton" to="." method="_on_check_updates_button_pressed"]
+[connection signal="pressed" from="UpdateModal/ModalCenter/ModalCard/ModalVBox/ModalButtonsRow/LaterButton" to="." method="_on_update_later_pressed"]
+[connection signal="pressed" from="UpdateModal/ModalCenter/ModalCard/ModalVBox/ModalButtonsRow/DownloadButton" to="." method="_on_update_download_pressed"]
+[connection signal="request_completed" from="UpdateChecker" to="." method="_on_update_checker_request_completed"]

@@ -106,6 +106,21 @@ extends Control
 # Backward compatibility alias
 @onready var mic_calib_modal: Control = mic_calib_screen
 
+const CURRENT_GAME_VERSION: String = "v0.1.0-pre-alpha"
+const GITHUB_RELEASES_URL: String = "https://api.github.com/repos/syzhn321-svg/family-game/releases?per_page=1"
+
+# Update Checker Nodes
+@onready var update_modal: Control = get_node_or_null("UpdateModal")
+@onready var update_modal_version: Label = get_node_or_null("UpdateModal/ModalCenter/ModalCard/ModalVBox/TitleBox/ModalVersionLabel")
+@onready var update_modal_desc: Label = get_node_or_null("UpdateModal/ModalCenter/ModalCard/ModalVBox/ModalDesc")
+@onready var update_checker: HTTPRequest = get_node_or_null("UpdateChecker")
+@onready var check_updates_button: Button = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/UpdateBox/CheckUpdatesButton")
+@onready var update_version_label: Label = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/UpdateBox/UpdateVersionLabel")
+
+var is_manual_update_check: bool = false
+var pending_update_download_url: String = ""
+var pending_update_tag: String = ""
+
 var calib_audio_player: AudioStreamPlayer = null
 var calib_capture_effect: AudioEffectCapture = null
 var is_auto_calibrating: bool = false
@@ -141,6 +156,10 @@ func _ready() -> void:
 		copy_code_button.pressed.connect(_on_copy_code_pressed)
 	if copy_ip_button and not copy_ip_button.pressed.is_connected(_on_copy_ip_pressed):
 		copy_ip_button.pressed.connect(_on_copy_ip_pressed)
+
+	if update_version_label:
+		update_version_label.text = CURRENT_GAME_VERSION
+	_check_for_updates(false)
 
 	if not skip_startup:
 		_open_mic_calibration_screen(true)
@@ -274,6 +293,9 @@ func _show_main_buttons() -> void:
 	var net := get_node_or_null("/root/NetworkManager")
 	if net:
 		net.stop_listening()
+
+	if not pending_update_tag.is_empty():
+		_open_update_modal(pending_update_tag, pending_update_download_url)
 
 
 func _show_campaign_panel() -> void:
@@ -1400,3 +1422,159 @@ func _on_save_calib_button_pressed() -> void:
 		_on_options_pressed()
 	else:
 		_show_main_buttons()
+
+
+# --- Auto-Update & Version Checking System ---
+
+func _check_for_updates(manual: bool = false) -> void:
+	if not update_checker:
+		return
+	is_manual_update_check = manual
+	if manual and check_updates_button:
+		check_updates_button.text = "Checking updates..."
+		check_updates_button.disabled = true
+	
+	var headers: PackedStringArray = [
+		"User-Agent: FamilyGameClient/%s" % CURRENT_GAME_VERSION,
+		"Accept: application/vnd.github.v3+json"
+	]
+	var err := update_checker.request(GITHUB_RELEASES_URL, headers, HTTPClient.METHOD_GET)
+	if err != OK:
+		if manual and check_updates_button:
+			check_updates_button.text = "Could not reach GitHub ⚠️"
+			check_updates_button.disabled = false
+			get_tree().create_timer(3.0).timeout.connect(func():
+				if is_instance_valid(check_updates_button):
+					check_updates_button.text = "Check for Updates 🔄"
+			)
+
+
+func _on_update_checker_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
+		if is_manual_update_check and check_updates_button:
+			check_updates_button.text = "Could not check updates ⚠️"
+			check_updates_button.disabled = false
+			get_tree().create_timer(3.0).timeout.connect(func():
+				if is_instance_valid(check_updates_button):
+					check_updates_button.text = "Check for Updates 🔄"
+			)
+		return
+
+	var json_str := body.get_string_from_utf8()
+	var json := JSON.new()
+	var parse_err := json.parse(json_str)
+	if parse_err != OK:
+		return
+
+	var releases = json.data
+	if not (releases is Array) or releases.is_empty():
+		return
+
+	var latest_release: Dictionary = releases[0]
+	var remote_tag: String = latest_release.get("tag_name", "")
+	if remote_tag.is_empty():
+		return
+
+	if _is_remote_version_newer(remote_tag, CURRENT_GAME_VERSION):
+		var target_url: String = latest_release.get("html_url", "")
+		var assets: Array = latest_release.get("assets", [])
+		if OS.has_feature("android") or OS.has_feature("mobile"):
+			for asset in assets:
+				if asset is Dictionary and String(asset.get("name", "")).ends_with(".apk"):
+					target_url = asset.get("browser_download_url", target_url)
+					break
+		else:
+			for asset in assets:
+				if asset is Dictionary:
+					var a_name: String = asset.get("name", "")
+					if a_name.ends_with(".apk") or a_name.ends_with(".zip") or a_name.ends_with(".exe"):
+						target_url = asset.get("browser_download_url", target_url)
+						break
+		
+		pending_update_download_url = target_url
+		pending_update_tag = remote_tag
+		
+		if is_manual_update_check:
+			if check_updates_button:
+				check_updates_button.text = "Update Found! ⬇️"
+				check_updates_button.disabled = false
+			_open_update_modal(remote_tag, target_url)
+		else:
+			if mic_calib_screen and mic_calib_screen.visible:
+				# Deferred until user taps PROCEED and main buttons are shown
+				pass
+			else:
+				_open_update_modal(remote_tag, target_url)
+	else:
+		if is_manual_update_check and check_updates_button:
+			check_updates_button.text = "Up to date! (%s) ✅" % CURRENT_GAME_VERSION
+			check_updates_button.disabled = false
+			get_tree().create_timer(3.0).timeout.connect(func():
+				if is_instance_valid(check_updates_button):
+					check_updates_button.text = "Check for Updates 🔄"
+			)
+
+
+func _is_remote_version_newer(remote_tag: String, local_tag: String) -> bool:
+	if remote_tag.is_empty() or remote_tag == local_tag:
+		return false
+	
+	var r_clean := remote_tag.trim_prefix("v").trim_prefix("V")
+	var l_clean := local_tag.trim_prefix("v").trim_prefix("V")
+	
+	var r_parts := r_clean.split("-")
+	var l_parts := l_clean.split("-")
+	
+	var r_nums := r_parts[0].split(".")
+	var l_nums := l_parts[0].split(".")
+	
+	for i in range(mini(r_nums.size(), l_nums.size())):
+		var r_val := r_nums[i].to_int()
+		var l_val := l_nums[i].to_int()
+		if r_val > l_val:
+			return true
+		elif r_val < l_val:
+			return false
+	
+	if r_nums.size() > l_nums.size():
+		return true
+	elif r_nums.size() < l_nums.size():
+		return false
+	
+	if l_parts.size() > 1 and r_parts.size() == 1:
+		return true
+	
+	if r_parts.size() > 1 and l_parts.size() > 1:
+		return r_parts[1] > l_parts[1]
+		
+	return false
+
+
+func _open_update_modal(version_tag: String, download_url: String) -> void:
+	pending_update_download_url = download_url
+	pending_update_tag = version_tag
+	if update_modal_version:
+		update_modal_version.text = "New Version: %s" % version_tag
+	if update_modal_desc:
+		update_modal_desc.text = "A new update (%s) is available on GitHub with fixes and gameplay improvements.\nWould you like to download it now?" % version_tag
+	if update_modal:
+		update_modal.visible = true
+
+
+func _close_update_modal() -> void:
+	if update_modal:
+		update_modal.visible = false
+
+
+func _on_update_later_pressed() -> void:
+	_close_update_modal()
+
+
+func _on_update_download_pressed() -> void:
+	if not pending_update_download_url.is_empty():
+		OS.shell_open(pending_update_download_url)
+	_close_update_modal()
+
+
+func _on_check_updates_button_pressed() -> void:
+	_check_for_updates(true)
