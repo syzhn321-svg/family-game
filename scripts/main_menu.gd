@@ -36,9 +36,16 @@ extends Control
 @onready var player_name_box: Control = get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox") if get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox") != null else get_node_or_null("CenterContainer/VBoxContainer/PlayerNameBox")
 @onready var player_name_sep: HSeparator = get_node_or_null("CenterContainer/VBoxContainer/HSeparator")
 @onready var player_name_input: LineEdit = get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox/PlayerNameInput") if get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox/PlayerNameInput") != null else get_node_or_null("CenterContainer/VBoxContainer/PlayerNameBox/PlayerNameInput")
+@onready var options_player_name_input: LineEdit = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/IdentityBox/OptionsPlayerNameInput")
 @onready var multiplayer_button: Button = get_node_or_null("CenterContainer/VBoxContainer/MainButtons/MultiplayerButton")
 @onready var options_button: Button = get_node_or_null("CenterContainer/VBoxContainer/MainButtons/OptionsButton")
 @onready var quit_button: Button = get_node_or_null("CenterContainer/VBoxContainer/MainButtons/QuitButton")
+
+# First Launch Modal Nodes
+@onready var first_launch_name_modal: Control = get_node_or_null("FirstLaunchNameModal")
+@onready var name_modal_input: LineEdit = get_node_or_null("FirstLaunchNameModal/CenterContainer/NameCard/MarginContainer/CardVBox/NameModalInput")
+@onready var name_modal_error: Label = get_node_or_null("FirstLaunchNameModal/CenterContainer/NameCard/MarginContainer/CardVBox/NameModalError")
+@onready var name_modal_confirm_btn: Button = get_node_or_null("FirstLaunchNameModal/CenterContainer/NameCard/MarginContainer/CardVBox/NameModalConfirmButton")
 
 # Mobile Dedicated Ergonomic Layout Nodes
 @onready var mobile_header: Control = get_node_or_null("MobileHeader")
@@ -191,34 +198,36 @@ func _ready() -> void:
 		mobile_campaign_button.pressed.connect(_on_campaign_pressed)
 	if mobile_options_button and not mobile_options_button.pressed.is_connected(_on_options_pressed):
 		mobile_options_button.pressed.connect(_on_options_pressed)
-	if mobile_player_name_input and not mobile_player_name_input.text_changed.is_connected(_on_mobile_name_changed):
-		mobile_player_name_input.text_changed.connect(_on_mobile_name_changed)
-	if player_name_input and not player_name_input.text_changed.is_connected(_on_pc_name_changed):
-		player_name_input.text_changed.connect(_on_pc_name_changed)
+	if options_player_name_input and not options_player_name_input.text_changed.is_connected(_on_options_player_name_changed):
+		options_player_name_input.text_changed.connect(_on_options_player_name_changed)
+	if name_modal_confirm_btn and not name_modal_confirm_btn.pressed.is_connected(_on_first_launch_name_confirm_pressed):
+		name_modal_confirm_btn.pressed.connect(_on_first_launch_name_confirm_pressed)
+	if name_modal_input and not name_modal_input.text_submitted.is_connected(_on_first_launch_name_submitted):
+		name_modal_input.text_submitted.connect(_on_first_launch_name_submitted)
 
 	if update_version_label:
 		update_version_label.text = CURRENT_GAME_VERSION
 	_check_for_updates(false)
 
-	if not skip_startup:
+	_apply_mobile_ui_scaling()
+
+	var save_mgr := get_node_or_null("/root/SaveManager")
+	var has_name: bool = save_mgr != null and save_mgr.has_player_name()
+
+	if not has_name:
+		_show_first_launch_name_modal()
+	elif not skip_startup:
 		_open_mic_calibration_screen(true)
 	else:
 		_show_main_buttons()
 
 
 func _setup_default_values() -> void:
-	var sys_user := OS.get_environment("USERNAME")
-	if sys_user.is_empty():
-		sys_user = OS.get_environment("USER")
-	if sys_user.is_empty():
-		sys_user = "Player"
-	
-	if player_name_input:
-		player_name_input.text = sys_user
-	if mobile_player_name_input:
-		mobile_player_name_input.text = sys_user
+	var cur_name := _get_player_name()
 	if lobby_name_input:
-		lobby_name_input.text = "%s's Session" % sys_user
+		lobby_name_input.text = "%s's Session" % cur_name
+	if options_player_name_input:
+		options_player_name_input.text = cur_name
 	
 	# Game Mode options (Story Mode locked for now)
 	if game_mode_option:
@@ -326,14 +335,220 @@ func _setup_default_values() -> void:
 		_update_platform_options_visibility()
 
 
-func _on_mobile_name_changed(new_text: String) -> void:
-	if player_name_input and player_name_input.text != new_text:
-		player_name_input.text = new_text
+func _on_options_player_name_changed(new_text: String) -> void:
+	var clean := new_text.strip_edges()
+	if not clean.is_empty():
+		var save_mgr := get_node_or_null("/root/SaveManager")
+		if save_mgr:
+			save_mgr.set_player_name(clean)
+		var net := get_node_or_null("/root/NetworkManager")
+		if net:
+			net.local_player_name = clean
+		if lobby_name_input and (lobby_name_input.text.is_empty() or lobby_name_input.text.ends_with("'s Session")):
+			lobby_name_input.text = "%s's Session" % clean
 
 
-func _on_pc_name_changed(new_text: String) -> void:
-	if mobile_player_name_input and mobile_player_name_input.text != new_text:
-		mobile_player_name_input.text = new_text
+func _show_first_launch_name_modal() -> void:
+	_hide_all_panels()
+	if center_container:
+		center_container.visible = false
+	if mobile_main_layout:
+		mobile_main_layout.visible = false
+	if mobile_header:
+		mobile_header.visible = false
+	if first_launch_name_modal:
+		first_launch_name_modal.visible = true
+		if name_modal_error:
+			name_modal_error.visible = false
+		if name_modal_input:
+			if name_modal_input.text.strip_edges().is_empty():
+				var sys_user := OS.get_environment("USERNAME")
+				if sys_user.is_empty():
+					sys_user = OS.get_environment("USER")
+				name_modal_input.text = sys_user if not sys_user.is_empty() else ""
+			name_modal_input.grab_focus()
+
+
+func _on_first_launch_name_confirm_pressed() -> void:
+	if not name_modal_input:
+		return
+	var clean := name_modal_input.text.strip_edges()
+	if clean.is_empty():
+		if name_modal_error:
+			name_modal_error.text = "Please enter a valid call-sign."
+			name_modal_error.visible = true
+		return
+	
+	var save_mgr := get_node_or_null("/root/SaveManager")
+	if save_mgr:
+		save_mgr.set_player_name(clean)
+	var net := get_node_or_null("/root/NetworkManager")
+	if net:
+		net.local_player_name = clean
+	
+	if options_player_name_input:
+		options_player_name_input.text = clean
+	if lobby_name_input and (lobby_name_input.text.is_empty() or lobby_name_input.text.ends_with("'s Session")):
+		lobby_name_input.text = "%s's Session" % clean
+	
+	if first_launch_name_modal:
+		first_launch_name_modal.visible = false
+	
+	var skip_mic := false
+	if net and net.get("local_settings") != null:
+		skip_mic = bool(net.local_settings.get("skip_startup_mic_calib", false))
+	
+	if not skip_mic:
+		_open_mic_calibration_screen(true)
+	else:
+		_show_main_buttons()
+
+
+func _on_first_launch_name_submitted(_text: String) -> void:
+	_on_first_launch_name_confirm_pressed()
+
+
+func _apply_mobile_ui_scaling() -> void:
+	if not _is_mobile_platform():
+		return
+
+	if vbox_container:
+		vbox_container.custom_minimum_size = Vector2(860, 0)
+
+	# 2x size for sub-panel hero and action buttons
+	var hero_buttons: Array = [
+		get_node_or_null("CenterContainer/VBoxContainer/MultiplayerPanel/HostCoopButton"),
+		get_node_or_null("CenterContainer/VBoxContainer/MultiplayerPanel/JoinCoopButton"),
+		get_node_or_null("CenterContainer/VBoxContainer/JoinMethodsPanel/JoinOnlineButton"),
+		get_node_or_null("CenterContainer/VBoxContainer/JoinMethodsPanel/JoinLanButton")
+	]
+	for btn in hero_buttons:
+		if is_instance_valid(btn):
+			btn.custom_minimum_size = Vector2(0, 116)
+			btn.add_theme_font_size_override("font_size", 24)
+
+	var action_buttons: Array = [
+		start_host_button, join_room_code_button
+	]
+	for btn in action_buttons:
+		if is_instance_valid(btn):
+			btn.custom_minimum_size = Vector2(0, 100)
+			btn.add_theme_font_size_override("font_size", 26)
+
+	var secondary_buttons: Array = [
+		get_node_or_null("CenterContainer/VBoxContainer/MultiplayerPanel/BackFromMultiplayerButton"),
+		get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/BackFromHostSetupButton"),
+		get_node_or_null("CenterContainer/VBoxContainer/JoinMethodsPanel/BackFromJoinMethodsButton"),
+		get_node_or_null("CenterContainer/VBoxContainer/JoinRoomCodePanel/BackFromRoomCodeButton"),
+		get_node_or_null("CenterContainer/VBoxContainer/JoinLanPanel/BackFromLanButton"),
+		get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/BackFromOptionsButton"),
+		refresh_lan_button,
+		get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/MicBox/CalibrateMicButton"),
+		check_updates_button
+	]
+	for btn in secondary_buttons:
+		if is_instance_valid(btn):
+			btn.custom_minimum_size = Vector2(0, 80)
+			btn.add_theme_font_size_override("font_size", 22)
+
+	if paste_code_button:
+		paste_code_button.custom_minimum_size = Vector2(140, 80)
+		paste_code_button.add_theme_font_size_override("font_size", 22)
+
+	# 2x size for text inputs
+	var line_edits: Array = [
+		lobby_name_input, room_code_input, options_player_name_input
+	]
+	for le in line_edits:
+		if is_instance_valid(le):
+			le.custom_minimum_size = Vector2(0, 80)
+			le.add_theme_font_size_override("font_size", 24)
+
+	# 2x size for OptionButtons
+	var option_buttons: Array = [
+		game_mode_option, max_players_option, voice_mode_option, touch_size_option
+	]
+	for opt in option_buttons:
+		if is_instance_valid(opt):
+			opt.custom_minimum_size = Vector2(0, 76)
+			opt.add_theme_font_size_override("font_size", 22)
+
+	# 2x size for CheckBoxes
+	var check_boxes: Array = [
+		crosshair_check, calib_dont_show_check
+	]
+	for cb in check_boxes:
+		if is_instance_valid(cb):
+			cb.custom_minimum_size = Vector2(0, 64)
+			cb.add_theme_font_size_override("font_size", 22)
+
+	# 2x size for sub-panel titles
+	var panel_titles: Array = [
+		get_node_or_null("CenterContainer/VBoxContainer/MultiplayerPanel/MultiplayerTitle"),
+		host_setup_title,
+		get_node_or_null("CenterContainer/VBoxContainer/JoinMethodsPanel/JoinMethodsTitle"),
+		get_node_or_null("CenterContainer/VBoxContainer/JoinRoomCodePanel/JoinRoomTitle"),
+		get_node_or_null("CenterContainer/VBoxContainer/JoinLanPanel/JoinLanTitle"),
+		get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/OptionsTitle"),
+		get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel/CalibHeader")
+	]
+	for lbl in panel_titles:
+		if is_instance_valid(lbl):
+			lbl.add_theme_font_size_override("font_size", 32)
+
+	var panel_descs: Array = [
+		get_node_or_null("CenterContainer/VBoxContainer/MultiplayerPanel/MultiplayerDesc"),
+		host_setup_desc,
+		get_node_or_null("CenterContainer/VBoxContainer/JoinMethodsPanel/JoinMethodsDesc"),
+		get_node_or_null("CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeDesc"),
+		get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel/CalibHint"),
+		get_node_or_null("CenterContainer/VBoxContainer/MicCalibrationPanel/LiveMeterRow/MeterLabel"),
+		calib_meter_status,
+		calib_auto_status,
+		calib_threshold_val,
+		calib_sens_val
+	]
+	for lbl in panel_descs:
+		if is_instance_valid(lbl):
+			lbl.add_theme_font_size_override("font_size", 20)
+
+	# Calibration controls
+	if calib_progress_bar:
+		calib_progress_bar.custom_minimum_size = Vector2(0, 48)
+	if calib_auto_button:
+		calib_auto_button.custom_minimum_size = Vector2(0, 80)
+		calib_auto_button.add_theme_font_size_override("font_size", 22)
+	if manual_adjust_button:
+		manual_adjust_button.custom_minimum_size = Vector2(0, 68)
+		manual_adjust_button.add_theme_font_size_override("font_size", 20)
+	if calib_threshold_slider:
+		calib_threshold_slider.custom_minimum_size = Vector2(0, 52)
+	if calib_sens_slider:
+		calib_sens_slider.custom_minimum_size = Vector2(0, 52)
+	if save_calib_button:
+		save_calib_button.custom_minimum_size = Vector2(0, 96)
+		save_calib_button.add_theme_font_size_override("font_size", 26)
+
+	# First launch modal 2x sizing
+	if first_launch_name_modal:
+		var name_card := first_launch_name_modal.get_node_or_null("CenterContainer/NameCard") as Control
+		if name_card:
+			name_card.custom_minimum_size = Vector2(750, 0)
+		if name_modal_input:
+			name_modal_input.custom_minimum_size = Vector2(0, 84)
+			name_modal_input.add_theme_font_size_override("font_size", 26)
+		if name_modal_confirm_btn:
+			name_modal_confirm_btn.custom_minimum_size = Vector2(0, 88)
+			name_modal_confirm_btn.add_theme_font_size_override("font_size", 26)
+		var tag_lbl := first_launch_name_modal.get_node_or_null("CenterContainer/NameCard/MarginContainer/CardVBox/NameModalTag") as Label
+		if tag_lbl:
+			tag_lbl.add_theme_font_size_override("font_size", 18)
+		var title_lbl := first_launch_name_modal.get_node_or_null("CenterContainer/NameCard/MarginContainer/CardVBox/NameModalTitle") as Label
+		if title_lbl:
+			title_lbl.add_theme_font_size_override("font_size", 34)
+		var desc_lbl := first_launch_name_modal.get_node_or_null("CenterContainer/NameCard/MarginContainer/CardVBox/NameModalDesc") as Label
+		if desc_lbl:
+			desc_lbl.add_theme_font_size_override("font_size", 20)
 
 
 func _on_mobile_back_pressed() -> void:
@@ -374,7 +589,7 @@ func _update_subpanel_layout() -> void:
 	if is_mobile:
 		if mobile_header: mobile_header.visible = true
 		if mobile_back_button: mobile_back_button.visible = true
-		if vbox_container: vbox_container.custom_minimum_size = Vector2(680, 0)
+		if vbox_container: vbox_container.custom_minimum_size = Vector2(860, 0)
 	else:
 		if mobile_header: mobile_header.visible = false
 		if mobile_back_button: mobile_back_button.visible = false
@@ -382,13 +597,8 @@ func _update_subpanel_layout() -> void:
 
 
 # --- Navigation Helpers ---
-func _set_player_name_visible(p_visible: bool) -> void:
-	if player_name_card:
-		player_name_card.visible = p_visible
-	elif player_name_box:
-		player_name_box.visible = p_visible
-	if player_name_sep:
-		player_name_sep.visible = p_visible
+func _set_player_name_visible(_p_visible: bool) -> void:
+	pass
 
 
 
@@ -407,7 +617,7 @@ func _hide_all_panels() -> void:
 	if match_settings_modal: match_settings_modal.visible = false
 	if mic_calib_screen: mic_calib_screen.visible = false
 	if mic_calib_modal and mic_calib_modal != mic_calib_screen: mic_calib_modal.visible = false
-	_set_player_name_visible(false)
+	if first_launch_name_modal: first_launch_name_modal.visible = false
 
 
 func _show_main_buttons() -> void:
@@ -428,9 +638,6 @@ func _show_main_buttons() -> void:
 			desktop_title_box.visible = false
 		if main_buttons_container:
 			main_buttons_container.visible = false
-		_set_player_name_visible(false)
-		if mobile_player_name_input and player_name_input:
-			mobile_player_name_input.text = player_name_input.text
 	else:
 		# --- Desktop Presentation: Restored Classic Horror Centered Look ---
 		if mobile_main_layout:
@@ -441,9 +648,26 @@ func _show_main_buttons() -> void:
 			center_container.visible = true
 		if desktop_title_box:
 			desktop_title_box.visible = true
-		_set_player_name_visible(true)
 		if main_buttons_container:
 			main_buttons_container.visible = true
+		if vbox_container:
+			vbox_container.custom_minimum_size = Vector2(520, 0)
+		if multiplayer_button:
+			multiplayer_button.custom_minimum_size = Vector2(0, 44)
+			multiplayer_button.text = "MULTIPLAYER"
+		if play_alone_button:
+			play_alone_button.custom_minimum_size = Vector2(0, 44)
+			play_alone_button.disabled = true
+			play_alone_button.text = "CAMPAIGN (COMING SOON)"
+			play_alone_button.tooltip_text = "Campaign mode is currently in development."
+		if options_button:
+			options_button.custom_minimum_size = Vector2(0, 44)
+			options_button.text = "OPTIONS"
+		if quit_button:
+			quit_button.custom_minimum_size = Vector2(0, 38)
+			quit_button.visible = true
+			quit_button.text = "QUIT"
+
 		if vbox_container:
 			vbox_container.custom_minimum_size = Vector2(520, 0)
 		if multiplayer_button:
@@ -519,7 +743,6 @@ func _show_multiplayer_panel() -> void:
 	_update_subpanel_layout()
 	if main_subtitle:
 		main_subtitle.text = "CO-OP ESCAPE"
-	_set_player_name_visible(true)
 	multiplayer_panel.visible = true
 
 
@@ -585,12 +808,24 @@ func _show_options_panel() -> void:
 	if main_subtitle:
 		main_subtitle.text = "CO-OP ESCAPE"
 	_update_platform_options_visibility()
+	if options_player_name_input:
+		options_player_name_input.text = _get_player_name()
 	options_panel.visible = true
 
 
 func _get_player_name() -> String:
-	var raw := player_name_input.text.strip_edges()
-	return raw if not raw.is_empty() else "Player"
+	var save_mgr := get_node_or_null("/root/SaveManager")
+	if save_mgr:
+		var n: String = save_mgr.get_player_name()
+		if not n.is_empty():
+			return n
+	var net := get_node_or_null("/root/NetworkManager")
+	if net and not net.local_player_name.is_empty() and net.local_player_name != "Player":
+		return net.local_player_name
+	var sys_user := OS.get_environment("USERNAME")
+	if sys_user.is_empty():
+		sys_user = OS.get_environment("USER")
+	return sys_user if not sys_user.is_empty() else "Player"
 
 
 # --- Auto LAN Discovery Callback ---

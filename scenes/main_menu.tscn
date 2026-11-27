@@ -186,6 +186,25 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mobile_back"]
+content_margin_left = 24.0
+content_margin_top = 14.0
+content_margin_right = 24.0
+content_margin_bottom = 14.0
+bg_color = Color(0.12, 0.16, 0.24, 0.98)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.88, 0.28, 0.28, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 4
+
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_calib_transmitting"]
 bg_color = Color(0.26, 0.82, 0.52, 0.95)
 corner_radius_top_left = 3
@@ -225,11 +244,11 @@ mouse_filter = 2
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 60.0
+offset_bottom = 110.0
 grow_horizontal = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 24
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 32
 
 [node name="HeaderHBox" type="HBoxContainer" parent="MobileHeader"]
 mouse_filter = 2
@@ -237,10 +256,11 @@ layout_mode = 2
 
 [node name="MobileBackButton" type="Button" parent="MobileHeader/HeaderHBox" unique_id=987110002]
 visible = false
-custom_minimum_size = Vector2(90, 42)
+custom_minimum_size = Vector2(220, 84)
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_back_btn")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 26
+theme_override_styles/normal = SubResource("StyleBoxFlat_mobile_back")
 text = "< BACK"
 
 [node name="HeaderSpacer" type="Control" parent="MobileHeader/HeaderHBox"]
@@ -249,8 +269,8 @@ size_flags_horizontal = 3
 
 [node name="MobileVersionBadge" type="Label" parent="MobileHeader/HeaderHBox" unique_id=987110003]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.5, 0.6, 0.9)
-theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.55, 0.65, 0.8, 1)
+theme_override_font_sizes/font_size = 18
 text = "v0.1.0-pre-alpha"
 
 [node name="MobileMainLayout" type="CenterContainer" parent="." unique_id=987110010]
@@ -265,54 +285,33 @@ grow_vertical = 2
 
 [node name="SplitHBox" type="HBoxContainer" parent="MobileMainLayout"]
 mouse_filter = 2
-custom_minimum_size = Vector2(1100, 440)
+custom_minimum_size = Vector2(1180, 500)
 layout_mode = 2
-theme_override_constants/separation = 50
+theme_override_constants/separation = 48
 
 [node name="LeftDossier" type="VBoxContainer" parent="MobileMainLayout/SplitHBox"]
 mouse_filter = 2
-custom_minimum_size = Vector2(500, 0)
+custom_minimum_size = Vector2(520, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 14
+theme_override_constants/separation = 20
 alignment = 1
 
 [node name="MobileTitleBox" type="VBoxContainer" parent="MobileMainLayout/SplitHBox/LeftDossier"]
 layout_mode = 2
-theme_override_constants/separation = 2
+theme_override_constants/separation = 4
 
 [node name="MobileTitle" type="Label" parent="MobileMainLayout/SplitHBox/LeftDossier/MobileTitleBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.92, 0.94, 1)
-theme_override_font_sizes/font_size = 54
+theme_override_font_sizes/font_size = 68
 text = "F A M I L Y"
 
 [node name="MobileSubtitle" type="Label" parent="MobileMainLayout/SplitHBox/LeftDossier/MobileTitleBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.52, 0.65, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.55, 0.65, 0.8, 1)
+theme_override_font_sizes/font_size = 24
 text = "CO-OP SURVIVAL ESCAPE"
-
-[node name="MobileSurvivorCard" type="PanelContainer" parent="MobileMainLayout/SplitHBox/LeftDossier"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_profile_card")
-
-[node name="CardVBox" type="VBoxContainer" parent="MobileMainLayout/SplitHBox/LeftDossier/MobileSurvivorCard"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="DossierTag" type="Label" parent="MobileMainLayout/SplitHBox/LeftDossier/MobileSurvivorCard/CardVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.75, 0.88, 0.9)
-theme_override_font_sizes/font_size = 11
-text = "SURVIVOR CALLSIGN"
-
-[node name="MobilePlayerNameInput" type="LineEdit" parent="MobileMainLayout/SplitHBox/LeftDossier/MobileSurvivorCard/CardVBox" unique_id=987110015]
-custom_minimum_size = Vector2(0, 42)
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "Player"
-placeholder_text = "Enter callsign"
 
 [node name="MobileStoryBrief" type="PanelContainer" parent="MobileMainLayout/SplitHBox/LeftDossier"]
 layout_mode = 2
@@ -320,43 +319,45 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_brief_pill")
 
 [node name="StoryLabel" type="Label" parent="MobileMainLayout/SplitHBox/LeftDossier/MobileStoryBrief"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.65, 0.75, 0.85)
-theme_override_font_sizes/font_size = 12
-text = "Laluan 189 • Stay quiet. Avoid the headlights."
+theme_override_colors/font_color = Color(0.65, 0.72, 0.85, 0.9)
+theme_override_font_sizes/font_size = 18
+text = "Laluan 189 • Stay quiet. Avoid the headlights.
+Survivor squad mission into the abandoned resort."
 autowrap_mode = 2
 
 [node name="RightActions" type="VBoxContainer" parent="MobileMainLayout/SplitHBox"]
 mouse_filter = 2
-custom_minimum_size = Vector2(480, 0)
+custom_minimum_size = Vector2(540, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 14
+theme_override_constants/separation = 20
 alignment = 1
 
 [node name="MobileMultiplayerButton" type="Button" parent="MobileMainLayout/SplitHBox/RightActions" unique_id=987110020]
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(0, 126)
 layout_mode = 2
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 24
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_hero")
 text = "MULTIPLAYER
 Co-Op Squad Escape (Online & LAN)"
 
 [node name="MobileCampaignButton" type="Button" parent="MobileMainLayout/SplitHBox/RightActions" unique_id=987110021]
-custom_minimum_size = Vector2(0, 56)
+custom_minimum_size = Vector2(0, 102)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_card")
 disabled = true
 text = "CAMPAIGN
 Solo Story Mode (Coming Soon)"
 
 [node name="MobileOptionsButton" type="Button" parent="MobileMainLayout/SplitHBox/RightActions" unique_id=987110022]
-custom_minimum_size = Vector2(0, 56)
+custom_minimum_size = Vector2(0, 102)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_card")
 text = "OPTIONS
 Audio, Controls & Gameplay"
+
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=1340276127]
 mouse_filter = 2
@@ -389,31 +390,6 @@ theme_override_colors/font_color = Color(0.5, 0.52, 0.58, 1)
 theme_override_font_sizes/font_size = 14
 text = "CO-OP ESCAPE"
 horizontal_alignment = 1
-
-[node name="PlayerNameCard" type="PanelContainer" parent="CenterContainer/VBoxContainer" unique_id=1688742894]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_profile_card")
-
-[node name="PlayerNameBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/PlayerNameCard"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="PlayerNameLabel" type="Label" parent="CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox" unique_id=348144781]
-custom_minimum_size = Vector2(90, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.75, 0.88, 0.9)
-theme_override_font_sizes/font_size = 12
-text = "SURVIVOR:"
-
-[node name="PlayerNameInput" type="LineEdit" parent="CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox" unique_id=1356090208]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 13
-text = "Player"
-placeholder_text = "Enter your callsign"
-
-[node name="HSeparator" type="HSeparator" parent="CenterContainer/VBoxContainer" unique_id=1679564574]
-layout_mode = 2
 
 [node name="MainButtons" type="VBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=672742528]
 layout_mode = 2
@@ -971,6 +947,30 @@ theme_override_font_sizes/font_size = 18
 text = "OPTIONS"
 horizontal_alignment = 1
 
+[node name="IdentityLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.65, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "SURVIVOR IDENTITY"
+
+[node name="IdentityBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel" unique_id=987654360]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="IdentityPromptLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel/IdentityBox" unique_id=987654361]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Call-Sign / Name:"
+
+[node name="OptionsPlayerNameInput" type="LineEdit" parent="CenterContainer/VBoxContainer/OptionsPanel/IdentityBox" unique_id=987654362]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+placeholder_text = "Enter call-sign"
+max_length = 24
+
 [node name="AudioLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.55, 0.65, 0.8, 1)
@@ -1423,6 +1423,86 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "DOWNLOAD"
 
+[node name="FirstLaunchNameModal" type="ColorRect" parent="." unique_id=987654370]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.015, 0.02, 0.03, 0.96)
+
+[node name="CenterContainer" type="CenterContainer" parent="FirstLaunchNameModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="NameCard" type="PanelContainer" parent="FirstLaunchNameModal/CenterContainer"]
+custom_minimum_size = Vector2(520, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_card")
+
+[node name="MarginContainer" type="MarginContainer" parent="FirstLaunchNameModal/CenterContainer/NameCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
+
+[node name="CardVBox" type="VBoxContainer" parent="FirstLaunchNameModal/CenterContainer/NameCard/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="NameModalTag" type="Label" parent="FirstLaunchNameModal/CenterContainer/NameCard/MarginContainer/CardVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.72, 0.35, 1)
+theme_override_font_sizes/font_size = 12
+text = "IDENTITY PROTOCOL • SURVIVOR CALL-SIGN"
+horizontal_alignment = 1
+
+[node name="NameModalTitle" type="Label" parent="FirstLaunchNameModal/CenterContainer/NameCard/MarginContainer/CardVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.96, 0.98, 1)
+theme_override_font_sizes/font_size = 24
+text = "ENTER YOUR CALL-SIGN"
+horizontal_alignment = 1
+
+[node name="NameModalDesc" type="Label" parent="FirstLaunchNameModal/CenterContainer/NameCard/MarginContainer/CardVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.72, 0.85, 0.9)
+theme_override_font_sizes/font_size = 13
+text = "Enter your survivor name before proceeding.
+You can change this call-sign anytime in the Options menu."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="NameModalInput" type="LineEdit" parent="FirstLaunchNameModal/CenterContainer/NameCard/MarginContainer/CardVBox" unique_id=987654371]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+placeholder_text = "Enter call-sign..."
+alignment = 1
+max_length = 24
+
+[node name="NameModalError" type="Label" parent="FirstLaunchNameModal/CenterContainer/NameCard/MarginContainer/CardVBox" unique_id=987654372]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.35, 0.35, 1)
+theme_override_font_sizes/font_size = 12
+text = "Please enter a valid call-sign."
+horizontal_alignment = 1
+
+[node name="NameModalConfirmButton" type="Button" parent="FirstLaunchNameModal/CenterContainer/NameCard/MarginContainer/CardVBox" unique_id=987654373]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_hero")
+text = "CONFIRM CALL-SIGN"
+
 [node name="UpdateChecker" type="HTTPRequest" parent="." unique_id=987654344]
 timeout = 8.0
 
@@ -1471,3 +1551,7 @@ timeout = 8.0
 [connection signal="pressed" from="UpdateModal/ModalCenter/ModalCard/ModalVBox/ModalButtonsRow/LaterButton" to="." method="_on_update_later_pressed"]
 [connection signal="pressed" from="UpdateModal/ModalCenter/ModalCard/ModalVBox/ModalButtonsRow/DownloadButton" to="." method="_on_update_download_pressed"]
 [connection signal="request_completed" from="UpdateChecker" to="." method="_on_update_checker_request_completed"]
+[connection signal="text_changed" from="CenterContainer/VBoxContainer/OptionsPanel/IdentityBox/OptionsPlayerNameInput" to="." method="_on_options_player_name_changed"]
+[connection signal="pressed" from="FirstLaunchNameModal/CenterContainer/NameCard/MarginContainer/CardVBox/NameModalConfirmButton" to="." method="_on_first_launch_name_confirm_pressed"]
+[connection signal="text_submitted" from="FirstLaunchNameModal/CenterContainer/NameCard/MarginContainer/CardVBox/NameModalInput" to="." method="_on_first_launch_name_submitted"]
+

@@ -135,7 +135,8 @@ func _load_profile() -> void:
 		profile_data = {
 			"version": 1,
 			"unlocked_chapters": [1], # Chapter 1 unlocked by default
-			"achievements": []
+			"achievements": [],
+			"player_name": ""
 		}
 		_save_profile()
 		return
@@ -149,6 +150,30 @@ func _load_profile() -> void:
 
 	if not profile_data.has("unlocked_chapters"):
 		profile_data["unlocked_chapters"] = [1]
+
+	var saved_name := str(profile_data.get("player_name", "")).strip_edges()
+	if not saved_name.is_empty():
+		var net := get_node_or_null("/root/NetworkManager")
+		if net:
+			net.local_player_name = saved_name
+
+
+func get_player_name() -> String:
+	return str(profile_data.get("player_name", "")).strip_edges()
+
+
+func set_player_name(p_name: String) -> void:
+	var clean := p_name.strip_edges()
+	profile_data["player_name"] = clean
+	_save_profile()
+	var net := get_node_or_null("/root/NetworkManager")
+	if net:
+		net.local_player_name = clean
+
+
+func has_player_name() -> bool:
+	var n: String = get_player_name()
+	return not n.is_empty() and n.to_lower() != "player"
 
 
 func _save_profile() -> void:
