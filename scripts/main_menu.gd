@@ -28,10 +28,15 @@ extends Control
 @onready var lobby_panel: VBoxContainer = $CenterContainer/VBoxContainer/LobbyPanel
 @onready var options_panel: VBoxContainer = $CenterContainer/VBoxContainer/OptionsPanel
 
-# Player & Host Setup Nodes
-@onready var player_name_box: HBoxContainer = $CenterContainer/VBoxContainer/PlayerNameBox
-@onready var player_name_sep: HSeparator = $CenterContainer/VBoxContainer/HSeparator
-@onready var player_name_input: LineEdit = $CenterContainer/VBoxContainer/PlayerNameBox/PlayerNameInput
+# Layout & Player Profile Nodes
+@onready var vbox_container: VBoxContainer = get_node_or_null("CenterContainer/VBoxContainer")
+@onready var player_name_card: Control = get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard")
+@onready var player_name_box: Control = get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox") if get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox") != null else get_node_or_null("CenterContainer/VBoxContainer/PlayerNameBox")
+@onready var player_name_sep: HSeparator = get_node_or_null("CenterContainer/VBoxContainer/HSeparator")
+@onready var player_name_input: LineEdit = get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox/PlayerNameInput") if get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox/PlayerNameInput") != null else get_node_or_null("CenterContainer/VBoxContainer/PlayerNameBox/PlayerNameInput")
+@onready var multiplayer_button: Button = get_node_or_null("CenterContainer/VBoxContainer/MainButtons/MultiplayerButton")
+@onready var options_button: Button = get_node_or_null("CenterContainer/VBoxContainer/MainButtons/OptionsButton")
+@onready var quit_button: Button = get_node_or_null("CenterContainer/VBoxContainer/MainButtons/QuitButton")
 @onready var host_setup_title: Label = $CenterContainer/VBoxContainer/HostSetupPanel/HostSetupTitle
 @onready var host_setup_desc: Label = $CenterContainer/VBoxContainer/HostSetupPanel/HostSetupDesc
 @onready var game_mode_option: OptionButton = get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/GameModeBox/GameModeOption")
@@ -231,8 +236,15 @@ func _setup_default_values() -> void:
 	max_players_option.add_item("4 Players", 4)
 	max_players_option.select(2)  # Default 4 players
 
-	# Platform-tailored Voice Mode options
-	var is_mobile := OS.get_name() in ["Android", "iOS"] or OS.has_feature("android") or OS.has_feature("ios")
+	# Platform-tailored Voice Mode options & Layout
+	var is_mobile := OS.get_name() in ["Android", "iOS"] or OS.has_feature("android") or OS.has_feature("ios") or OS.has_feature("mobile")
+	if vbox_container:
+		if is_mobile:
+			vbox_container.custom_minimum_size = Vector2(680, 0)
+		else:
+			vbox_container.custom_minimum_size = Vector2(540, 0)
+	if quit_button:
+		quit_button.visible = not is_mobile
 	voice_mode_option.clear()
 	voice_mode_option.add_item("Voice Detection (Auto-detect)", 0)
 	voice_mode_option.add_item("Always On (Continuous)", 1)
@@ -282,6 +294,16 @@ func _setup_default_values() -> void:
 
 
 # --- Navigation Helpers ---
+func _set_player_name_visible(p_visible: bool) -> void:
+	if player_name_card:
+		player_name_card.visible = p_visible
+	elif player_name_box:
+		player_name_box.visible = p_visible
+	if player_name_sep:
+		player_name_sep.visible = p_visible
+
+
+
 func _hide_all_panels() -> void:
 	main_buttons_container.visible = false
 	if campaign_panel: campaign_panel.visible = false
@@ -295,8 +317,7 @@ func _hide_all_panels() -> void:
 	if match_settings_modal: match_settings_modal.visible = false
 	if mic_calib_screen: mic_calib_screen.visible = false
 	if mic_calib_modal and mic_calib_modal != mic_calib_screen: mic_calib_modal.visible = false
-	if player_name_box: player_name_box.visible = false
-	if player_name_sep: player_name_sep.visible = false
+	_set_player_name_visible(false)
 
 
 func _show_main_buttons() -> void:
@@ -304,14 +325,14 @@ func _show_main_buttons() -> void:
 	main_buttons_container.visible = true
 	if main_subtitle:
 		main_subtitle.text = "CO-OP ESCAPE"
-	if player_name_box:
-		player_name_box.visible = true
-	if player_name_sep:
-		player_name_sep.visible = true
+	_set_player_name_visible(true)
 	if play_alone_button:
 		play_alone_button.disabled = true
-		play_alone_button.text = "CAMPAIGN (COMING SOON)"
+		play_alone_button.text = "CAMPAIGN\nSolo Story Mode (Coming Soon)"
 		play_alone_button.tooltip_text = "Campaign mode is currently in development."
+	if quit_button:
+		var is_mobile := OS.get_name() in ["Android", "iOS"] or OS.has_feature("android") or OS.has_feature("ios") or OS.has_feature("mobile")
+		quit_button.visible = not is_mobile
 
 	var net := get_node_or_null("/root/NetworkManager")
 	if net:
@@ -368,10 +389,7 @@ func _show_multiplayer_panel() -> void:
 	_hide_all_panels()
 	if main_subtitle:
 		main_subtitle.text = "CO-OP ESCAPE"
-	if player_name_box:
-		player_name_box.visible = true
-	if player_name_sep:
-		player_name_sep.visible = true
+	_set_player_name_visible(true)
 	multiplayer_panel.visible = true
 
 
@@ -419,8 +437,7 @@ func _show_join_lan_panel() -> void:
 
 func _show_lobby_panel() -> void:
 	_hide_all_panels()
-	if player_name_box: player_name_box.visible = false
-	if player_name_sep: player_name_sep.visible = false
+	_set_player_name_visible(false)
 	lobby_panel.visible = true
 	var is_host := multiplayer.is_server()
 	is_local_ready = is_host
@@ -1240,10 +1257,7 @@ func _open_mic_calibration_screen(is_startup: bool = false) -> void:
 	_hide_all_panels()
 	if main_subtitle:
 		main_subtitle.text = "CO-OP ESCAPE"
-	if player_name_box:
-		player_name_box.visible = false
-	if player_name_sep:
-		player_name_sep.visible = false
+	_set_player_name_visible(false)
 	
 	var net := get_node_or_null("/root/NetworkManager")
 	var curr_thresh: float = 0.025

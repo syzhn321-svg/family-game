@@ -112,6 +112,54 @@ corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hero"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+bg_color = Color(0.11, 0.14, 0.2, 0.95)
+border_width_left = 3
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.38, 0.54, 0.75, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_card"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.08, 0.09, 0.13, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.24, 0.32, 0.65)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_profile_card"]
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 6.0
+bg_color = Color(0.07, 0.08, 0.11, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.24, 0.32, 0.7)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
 [node name="MainMenu" type="Control" unique_id=141184140]
 layout_mode = 3
 anchors_preset = 15
@@ -139,7 +187,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=1308888354]
-custom_minimum_size = Vector2(520, 0)
+custom_minimum_size = Vector2(680, 0)
 layout_mode = 2
 theme_override_constants/separation = 16
 
@@ -161,22 +209,27 @@ theme_override_font_sizes/font_size = 14
 text = "CO-OP ESCAPE"
 horizontal_alignment = 1
 
-[node name="PlayerNameBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=1688742894]
+[node name="PlayerNameCard" type="PanelContainer" parent="CenterContainer/VBoxContainer" unique_id=1688742894]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_profile_card")
+
+[node name="PlayerNameBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/PlayerNameCard"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="PlayerNameLabel" type="Label" parent="CenterContainer/VBoxContainer/PlayerNameBox" unique_id=348144781]
-custom_minimum_size = Vector2(100, 0)
+[node name="PlayerNameLabel" type="Label" parent="CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox" unique_id=348144781]
+custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.8, 0.88, 1)
-theme_override_font_sizes/font_size = 13
-text = "Your Name:"
+theme_override_colors/font_color = Color(0.65, 0.75, 0.88, 0.9)
+theme_override_font_sizes/font_size = 12
+text = "SURVIVOR:"
 
-[node name="PlayerNameInput" type="LineEdit" parent="CenterContainer/VBoxContainer/PlayerNameBox" unique_id=1356090208]
+[node name="PlayerNameInput" type="LineEdit" parent="CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox" unique_id=1356090208]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
 text = "Player"
-placeholder_text = "Enter your display name"
+placeholder_text = "Enter your callsign"
 
 [node name="HSeparator" type="HSeparator" parent="CenterContainer/VBoxContainer" unique_id=1679564574]
 layout_mode = 2
@@ -185,24 +238,33 @@ layout_mode = 2
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="PlayAloneButton" type="Button" parent="CenterContainer/VBoxContainer/MainButtons" unique_id=934697514]
-custom_minimum_size = Vector2(0, 44)
-layout_mode = 2
-disabled = true
-text = "CAMPAIGN (COMING SOON)"
-
 [node name="MultiplayerButton" type="Button" parent="CenterContainer/VBoxContainer/MainButtons" unique_id=1552058755]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
-text = "MULTIPLAYER"
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_hero")
+text = "MULTIPLAYER
+Co-Op Squad Escape (Online & LAN)"
+
+[node name="PlayAloneButton" type="Button" parent="CenterContainer/VBoxContainer/MainButtons" unique_id=934697514]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_card")
+disabled = true
+text = "CAMPAIGN
+Solo Story Mode (Coming Soon)"
 
 [node name="OptionsButton" type="Button" parent="CenterContainer/VBoxContainer/MainButtons" unique_id=1798720646]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
-text = "OPTIONS"
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_card")
+text = "OPTIONS
+Audio, Controls & Gameplay"
 
 [node name="QuitButton" type="Button" parent="CenterContainer/VBoxContainer/MainButtons" unique_id=270533059]
-custom_minimum_size = Vector2(0, 38)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "QUIT"
 
@@ -314,17 +376,23 @@ text = "Host or Join a Session"
 horizontal_alignment = 1
 
 [node name="HostCoopButton" type="Button" parent="CenterContainer/VBoxContainer/MultiplayerPanel" unique_id=1814789668]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
-text = "CREATE LOBBY"
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_hero")
+text = "CREATE LOBBY
+Host a squad session (Online / LAN)"
 
 [node name="JoinCoopButton" type="Button" parent="CenterContainer/VBoxContainer/MultiplayerPanel" unique_id=352973994]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
-text = "JOIN LOBBY"
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_card")
+text = "JOIN LOBBY
+Enter a room code or browse local games"
 
 [node name="BackFromMultiplayerButton" type="Button" parent="CenterContainer/VBoxContainer/MultiplayerPanel" unique_id=1544626500]
-custom_minimum_size = Vector2(0, 38)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "BACK"
 
@@ -397,12 +465,14 @@ text = "Broadcasting session..."
 horizontal_alignment = 1
 
 [node name="StartHostButton" type="Button" parent="CenterContainer/VBoxContainer/HostSetupPanel" unique_id=525224756]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_hero")
 text = "START LOBBY"
 
 [node name="BackFromHostSetupButton" type="Button" parent="CenterContainer/VBoxContainer/HostSetupPanel" unique_id=1528511117]
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "BACK"
 
@@ -411,18 +481,37 @@ visible = false
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="JoinOnlineButton" type="Button" parent="CenterContainer/VBoxContainer/JoinMethodsPanel" unique_id=896729079]
-custom_minimum_size = Vector2(0, 44)
+[node name="JoinMethodsTitle" type="Label" parent="CenterContainer/VBoxContainer/JoinMethodsPanel" unique_id=1822044048]
 layout_mode = 2
-text = "ONLINE"
+theme_override_font_sizes/font_size = 18
+text = "JOIN SQUAD"
+horizontal_alignment = 1
+
+[node name="JoinMethodsDesc" type="Label" parent="CenterContainer/VBoxContainer/JoinMethodsPanel" unique_id=1822044049]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 12
+text = "Select Connection Method"
+horizontal_alignment = 1
+
+[node name="JoinOnlineButton" type="Button" parent="CenterContainer/VBoxContainer/JoinMethodsPanel" unique_id=896729079]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_hero")
+text = "ONLINE SQUAD
+Connect via Room Code or Host IP"
 
 [node name="JoinLanButton" type="Button" parent="CenterContainer/VBoxContainer/JoinMethodsPanel" unique_id=1003902560]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
-text = "LAN"
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_card")
+text = "LOCAL NETWORK
+Browse sessions on Wi-Fi / Hotspot"
 
 [node name="BackFromJoinMethodsButton" type="Button" parent="CenterContainer/VBoxContainer/JoinMethodsPanel" unique_id=483536768]
-custom_minimum_size = Vector2(0, 38)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "BACK"
 
@@ -449,7 +538,7 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="RoomCodeInput" type="LineEdit" parent="CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeRow" unique_id=1297203716]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "e.g. K8SZ, 192.168.0.x, or IP"
@@ -457,14 +546,16 @@ alignment = 1
 max_length = 64
 
 [node name="PasteCodeButton" type="Button" parent="CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeRow" unique_id=1489033034]
-custom_minimum_size = Vector2(65, 40)
+custom_minimum_size = Vector2(80, 46)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "PASTE"
 
 [node name="JoinRoomCodeButton" type="Button" parent="CenterContainer/VBoxContainer/JoinRoomCodePanel" unique_id=1105983475]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_hero")
 text = "JOIN"
 
 [node name="RoomCodeStatusLabel" type="Label" parent="CenterContainer/VBoxContainer/JoinRoomCodePanel" unique_id=1896742165]
@@ -474,7 +565,7 @@ theme_override_font_sizes/font_size = 13
 horizontal_alignment = 1
 
 [node name="BackFromRoomCodeButton" type="Button" parent="CenterContainer/VBoxContainer/JoinRoomCodePanel" unique_id=1882357387]
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "BACK"
 
@@ -501,12 +592,12 @@ layout_mode = 2
 theme_override_constants/separation = 6
 
 [node name="RefreshLanButton" type="Button" parent="CenterContainer/VBoxContainer/JoinLanPanel" unique_id=1322159003]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "REFRESH"
 
 [node name="BackFromLanButton" type="Button" parent="CenterContainer/VBoxContainer/JoinLanPanel" unique_id=1458582165]
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "BACK"
 
@@ -818,7 +909,7 @@ text = "Check for Updates"
 layout_mode = 2
 
 [node name="BackFromOptionsButton" type="Button" parent="CenterContainer/VBoxContainer/OptionsPanel" unique_id=1845321954]
-custom_minimum_size = Vector2(0, 38)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "BACK"
 
