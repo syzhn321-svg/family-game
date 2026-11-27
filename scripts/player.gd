@@ -1405,11 +1405,11 @@ func _setup_voice_playback() -> void:
 	if voice_player_3d and not is_instance_valid(voice_speaker):
 		voice_speaker = TWOVOIP_SPEAKER_SCENE.instantiate()
 		voice_speaker.name = "TwoVoipSpeaker"
-		voice_speaker.audio_buffer_lag_time_target = 0.16
-		voice_speaker.audio_buffer_length = 2.5
-		voice_speaker.maximum_playout_recovery_speed = 1.08
-		voice_speaker.stale_episode_timeout = 3.0
-		voice_speaker.missing_footer_timeout = 3.0
+		voice_speaker.audio_buffer_lag_time_target = 0.35
+		voice_speaker.audio_buffer_length = 3.0
+		voice_speaker.maximum_playout_recovery_speed = 1.05
+		voice_speaker.stale_episode_timeout = 4.0
+		voice_speaker.missing_footer_timeout = 4.0
 		voice_player_3d.add_child(voice_speaker)
 
 
@@ -1465,7 +1465,7 @@ func _process_voice_chat(delta: float) -> void:
 		voice_transmitter.is_muted = is_mic_muted
 
 
-@rpc("any_peer", "call_remote", "reliable")
+@rpc("any_peer", "call_remote", "reliable", 1)
 func receive_voice_control_packet(packet: PackedByteArray) -> void:
 	if is_multiplayer_authority():
 		return
@@ -1484,7 +1484,7 @@ func receive_voice_control_packet(packet: PackedByteArray) -> void:
 				remote_talking_timer = minf(remote_talking_timer, 0.15)
 
 
-@rpc("any_peer", "call_remote", "unreliable")
+@rpc("any_peer", "call_remote", "unreliable", 2)
 func receive_voice_audio_packet(packet: PackedByteArray) -> void:
 	if is_multiplayer_authority():
 		return

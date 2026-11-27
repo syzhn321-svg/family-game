@@ -462,7 +462,7 @@ func restart_episode_playback(reason := "playback stopped") -> bool:
 
 func ensure_episode_playback(required_space_frames := 0) -> bool:
 	_account_playback_underflow()
-	if audio_stream_playback_opus == null or not audio_stream_playback_opus.is_playing():
+	if audio_stream_playback_opus == null or (not audio_stream_playback_opus.is_playing() and audio_stream_playback_opus.queue_length_frames() == 0):
 		return restart_episode_playback("starvation")
 	var stalled_usec := _playback_clock_stall_usec()
 	if stalled_usec > PLAYBACK_CLOCK_STALL_TOLERANCE_USEC:

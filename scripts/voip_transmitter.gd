@@ -20,9 +20,9 @@ const OPUS_BITRATE: int = 24000
 const OPUS_COMPLEXITY: int = 5
 const OPUS_INBAND_FEC_PERC: int = 15
 
-const LEAD_TIME_SEC: float = 0.12        # 120ms C++ lookback captures initial plosives
-const HANG_TIME_SEC: float = 0.42        # 420ms Discord-style tail hold after speech stops
-const INPUT_GAP_THRESHOLD_SEC: float = 0.12
+const LEAD_TIME_SEC: float = 0.04        # 40ms lookback captures initial plosives without network burst
+const HANG_TIME_SEC: float = 0.35        # 350ms Discord-style tail hold after speech stops
+const INPUT_GAP_THRESHOLD_SEC: float = 0.35
 const TIMESTAMP_HISTORY_SEC: float = 1.0
 
 @export var preview_only: bool = false
@@ -179,7 +179,7 @@ func _init_encoder() -> bool:
 		_encoder = null
 		return false
 
-	_encoder.target_agc_gain(5.0)
+	_encoder.target_agc_gain(1.8)
 	_encoder.set_gain(mic_sensitivity)
 	_encoder.set_bitrate(OPUS_BITRATE)
 	_encoder.set_complexity(OPUS_COMPLEXITY)
@@ -215,8 +215,9 @@ func _process(delta: float) -> void:
 
 	var processed_any: bool = false
 	var chunk_secs: float = float(OPUS_FRAME_MS) / 1000.0
+	var chunks_processed: int = 0
 
-	while true:
+	while chunks_processed < 2:
 		var avail: int = AudioServer.get_input_frames_available()
 		var first_frame_usec: int = Time.get_ticks_usec() - roundi(
 			float(avail) * 1000000.0 / float(_configured_input_rate)
@@ -247,6 +248,7 @@ func _process(delta: float) -> void:
 
 		_input_chunk_number += 1
 		_input_chunk_times_usec[_input_chunk_number % _input_chunk_times_usec.size()] = first_frame_usec
+		chunks_processed += 1
 
 		# Run RNNoise + AGC on chunk 0 in C++
 		_encoder.denoise_chunk(0)
