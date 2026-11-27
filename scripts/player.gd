@@ -93,13 +93,14 @@ var external_interact_text: String = "USE"
 var external_drop_available: bool = false
 var interact_ray_cast: RayCast3D = null
 
-var mic_threshold: float = 0.025
+var mic_threshold: float = -36.0
 var mic_sensitivity: float = 1.0
 const VAD_HOLD_TIME: float = 0.35
 var vad_timer: float = 0.0
 var voice_timer: float = 0.0
 const VOICE_CHUNK_INTERVAL: float = 0.04
 var remote_talking_timer: float = 0.0
+var voice_frame_accumulator: PackedVector2Array = PackedVector2Array()
 
 # --- Identity & Host Sync ---
 var crosshair_enabled: bool = true
@@ -259,7 +260,11 @@ func _ready() -> void:
 		if net.get("local_settings") != null:
 			crosshair_enabled = bool(net.local_settings.get("crosshair_enabled", true))
 			v_mode_str = str(net.local_settings.get("voice_mode", "open_mic"))
-			mic_threshold = float(net.local_settings.get("mic_threshold", 0.025))
+			var raw_t: float = float(net.local_settings.get("mic_threshold", -36.0))
+			if raw_t > 0.0:
+				mic_threshold = 20.0 * (log(raw_t) / log(10.0))
+			else:
+				mic_threshold = raw_t
 			mic_sensitivity = float(net.local_settings.get("mic_sensitivity", 1.0))
 
 	if not flashlight_enabled_by_host:
@@ -1388,6 +1393,12 @@ func _setup_voice_playback() -> void:
 		voice_generator_playback = voice_player_3d.get_stream_playback() as AudioStreamGeneratorPlayback
 
 
+func _linear_to_db(lin: float) -> float:
+	if lin <= 0.00001:
+		return -80.0
+	return 20.0 * (log(lin) / log(10.0))
+
+
 func _process_voice_chat(delta: float) -> void:
 	if not is_multiplayer_authority():
 		if remote_talking_timer > 0.0:
@@ -1402,13 +1413,16 @@ func _process_voice_chat(delta: float) -> void:
 		var frames_avail := voice_capture_effect.get_frames_available()
 		if frames_avail > 0:
 			buffer = voice_capture_effect.get_buffer(frames_avail)
+			voice_frame_accumulator.append_array(buffer)
 			var sum_sq: float = 0.0
 			for frame in buffer:
 				var mono := (frame.x + frame.y) * 0.5
 				sum_sq += mono * mono
 			rms = sqrt(sum_sq / float(buffer.size())) if buffer.size() > 0 else 0.0
 
-	# Check Voice Activity (PTT key held vs Voice Detection vs Always On vs Muted)
+	var current_db := _linear_to_db(rms * mic_sensitivity)
+
+	# Check Voice Activity (PTT key held vs Discord VAD dB Gate vs Always On vs Muted)
 	var ptt_active := Input.is_action_pressed("push_to_talk")
 	var should_transmit := false
 	if is_mic_muted:
@@ -1416,8 +1430,11 @@ func _process_voice_chat(delta: float) -> void:
 	elif voice_mode == VoiceMode.ALWAYS_ON:
 		should_transmit = true
 	elif voice_mode == VoiceMode.OPEN_MIC:
-		if rms > mic_threshold:
+		# Discord Hysteresis: open at mic_threshold (e.g. -36 dB), keep open down to (mic_threshold - 5.0 dB)
+		if current_db > mic_threshold:
 			vad_timer = VAD_HOLD_TIME
+		elif current_db > (mic_threshold - 5.0) and vad_timer > 0.0:
+			vad_timer = max(0.0, vad_timer - delta)
 		else:
 			vad_timer = max(0.0, vad_timer - delta)
 		should_transmit = (vad_timer > 0.0)
@@ -1427,21 +1444,21 @@ func _process_voice_chat(delta: float) -> void:
 	_update_voice_hud_status(should_transmit, rms)
 
 	if should_transmit:
-		# Calibrated speech volume above gate threshold:
-		# Whisper (~threshold) registers ~0.15-0.30 (QUIET)
-		# Normal speaking registers ~0.40-0.60 (NORMAL)
-		# Shouting/screaming registers ~0.75-1.00 (LOUD!)
-		var effective_volume: float = maxf(0.0, rms - (mic_threshold * 0.5))
-		var speech_loudness: float = clampf(effective_volume * 10.0 * mic_sensitivity, 0.15, 1.0)
+		# Calibrated speech volume above gate in dB space
+		# -36 dB to -10 dB mapped smoothly to 0.20 to 1.00
+		var speech_loudness: float = clampf((current_db + 45.0) / 35.0, 0.15, 1.0)
 		noise_impulse = maxf(noise_impulse, speech_loudness)
 
-		if not buffer.is_empty():
-			voice_timer += delta
-			if voice_timer >= VOICE_CHUNK_INTERVAL:
-				voice_timer = 0.0
-				_send_voice_buffer(buffer)
+		voice_timer += delta
+		if voice_timer >= VOICE_CHUNK_INTERVAL:
+			voice_timer = 0.0
+			if not voice_frame_accumulator.is_empty():
+				_send_voice_buffer(voice_frame_accumulator)
+				voice_frame_accumulator.clear()
 	else:
 		voice_timer = 0.0
+		# Do not accumulate background room noise while gate is closed
+		voice_frame_accumulator.clear()
 
 
 func _send_voice_buffer(buffer: PackedVector2Array) -> void:

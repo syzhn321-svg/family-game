@@ -29,6 +29,7 @@ extends Control
 @onready var options_panel: VBoxContainer = $CenterContainer/VBoxContainer/OptionsPanel
 
 # Layout & Player Profile Nodes
+@onready var center_container: Control = get_node_or_null("CenterContainer")
 @onready var vbox_container: VBoxContainer = get_node_or_null("CenterContainer/VBoxContainer")
 @onready var desktop_title_box: Control = get_node_or_null("CenterContainer/VBoxContainer/TitleBox")
 @onready var player_name_card: Control = get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard")
@@ -150,6 +151,8 @@ var is_auto_calibrating: bool = false
 var auto_calib_timer: float = 0.0
 var auto_calib_samples: Array[float] = []
 var is_calib_opened_from_options: bool = false
+var style_transmitting: StyleBoxFlat = null
+var style_filtered: StyleBoxFlat = null
 
 var discovered_servers: Dictionary = {}
 var is_local_ready: bool = false
@@ -364,6 +367,10 @@ func _is_mobile_platform() -> bool:
 
 func _update_subpanel_layout() -> void:
 	var is_mobile := _is_mobile_platform()
+	if center_container:
+		center_container.visible = true
+	if mobile_main_layout:
+		mobile_main_layout.visible = false
 	if is_mobile:
 		if mobile_header: mobile_header.visible = true
 		if mobile_back_button: mobile_back_button.visible = true
@@ -409,6 +416,8 @@ func _show_main_buttons() -> void:
 	
 	if is_mobile:
 		# --- Mobile Presentation: Ergonomic Split Thumb Layout ---
+		if center_container:
+			center_container.visible = false
 		if mobile_main_layout:
 			mobile_main_layout.visible = true
 		if mobile_header:
@@ -428,6 +437,8 @@ func _show_main_buttons() -> void:
 			mobile_main_layout.visible = false
 		if mobile_header:
 			mobile_header.visible = false
+		if center_container:
+			center_container.visible = true
 		if desktop_title_box:
 			desktop_title_box.visible = true
 		_set_player_name_visible(true)
@@ -1386,11 +1397,16 @@ func _open_mic_calibration_screen(is_startup: bool = false) -> void:
 	_set_player_name_visible(false)
 	
 	var net := get_node_or_null("/root/NetworkManager")
-	var curr_thresh: float = 0.025
+	var curr_thresh: float = -36.0
 	var curr_sens: float = 1.0
 	var skip_startup: bool = false
 	if net and net.get("local_settings") != null:
-		curr_thresh = float(net.local_settings.get("mic_threshold", 0.025))
+		var raw_t: float = float(net.local_settings.get("mic_threshold", -36.0))
+		# Backward compatibility: if saved threshold was positive linear (e.g. 0.025), convert to dB
+		if raw_t > 0.0:
+			curr_thresh = _linear_to_db(raw_t)
+		else:
+			curr_thresh = raw_t
 		curr_sens = float(net.local_settings.get("mic_sensitivity", 1.0))
 		skip_startup = bool(net.local_settings.get("skip_startup_mic_calib", false))
 
@@ -1472,6 +1488,16 @@ func _process(delta: float) -> void:
 		_process_mic_calibration(delta)
 
 
+func _linear_to_db(lin: float) -> float:
+	if lin <= 0.00001:
+		return -80.0
+	return 20.0 * (log(lin) / log(10.0))
+
+
+func _db_to_linear(db: float) -> float:
+	return pow(10.0, db / 20.0)
+
+
 func _process_mic_calibration(delta: float) -> void:
 	if not calib_capture_effect:
 		return
@@ -1486,65 +1512,88 @@ func _process_mic_calibration(delta: float) -> void:
 			sum += s * s
 		rms = sqrt(sum / float(frames_avail))
 
-	var thresh: float = calib_threshold_slider.value if calib_threshold_slider else 0.025
+	var thresh_db: float = calib_threshold_slider.value if calib_threshold_slider else -36.0
 	var sens: float = calib_sens_slider.value if calib_sens_slider else 1.0
+	var current_db: float = _linear_to_db(rms * sens)
 
-	# Auto-calibration sampling
+	# Auto-calibration sampling in Decibels (Discord algorithm)
 	if is_auto_calibrating:
 		auto_calib_timer += delta
-		auto_calib_samples.append(rms)
+		auto_calib_samples.append(current_db)
 		var remaining: float = maxf(0.0, 1.8 - auto_calib_timer)
 		if calib_auto_status:
-			calib_auto_status.text = "Measuring room noise... keep quiet (%.1fs)" % remaining
+			calib_auto_status.text = "Sampling background noise... stay quiet (%.1fs)" % remaining
 			calib_auto_status.add_theme_color_override("font_color", Color(1.0, 0.85, 0.45))
 		if auto_calib_timer >= 1.8:
 			is_auto_calibrating = false
 			if calib_auto_button:
 				calib_auto_button.disabled = false
 				calib_auto_button.text = "Re-Detect Background Noise"
-			var avg_room := 0.0
+			# Find peak ambient noise floor during test
+			var peak_noise_db: float = -80.0
 			for s in auto_calib_samples:
-				avg_room += s
-			if auto_calib_samples.size() > 0:
-				avg_room /= float(auto_calib_samples.size())
-			var recommended_thresh := clampf(avg_room * 1.5 + 0.015, 0.005, 0.08)
+				if s > peak_noise_db:
+					peak_noise_db = s
+			# Set gate 8.0 dB safely above room noise floor to eliminate bleeding
+			var recommended_db: float = clampf(peak_noise_db + 8.0, -55.0, -15.0)
 			if calib_threshold_slider:
-				calib_threshold_slider.value = recommended_thresh
-			_update_threshold_label(recommended_thresh)
+				calib_threshold_slider.value = recommended_db
+			_update_threshold_label(recommended_db)
 			if calib_auto_status:
-				calib_auto_status.text = "Calibrated! Noise gate set to %.1f%%" % [recommended_thresh * 1000.0]
-				calib_auto_status.add_theme_color_override("font_color", Color(0.4, 0.95, 0.6))
+				calib_auto_status.text = "Calibrated! Gate set to %d dB (Noise floor: %d dB)" % [int(recommended_db), int(peak_noise_db)]
+				calib_auto_status.add_theme_color_override("font_color", Color(0.26, 0.82, 0.52))
 
-	# Live progress bar calculation
-	var pct: float = clampf(rms * 25.0 * sens * 100.0, 0.0, 100.0)
+	# Discord-style meter: -60 dB to 0 dB mapped to 0% - 100%
+	var pct: float = clampf((current_db + 60.0) / 60.0 * 100.0, 0.0, 100.0)
 	if calib_progress_bar:
-		calib_progress_bar.value = lerpf(calib_progress_bar.value, pct, delta * 15.0)
+		calib_progress_bar.value = lerpf(calib_progress_bar.value, pct, delta * 20.0)
 
-	if calib_meter_status:
-		if rms < (thresh * 0.5):
-			calib_meter_status.text = "Safe (Silent)"
-			calib_meter_status.add_theme_color_override("font_color", Color(0.4, 0.95, 0.6))
-		elif rms < thresh:
-			calib_meter_status.text = "Safe (Filtered)"
-			calib_meter_status.add_theme_color_override("font_color", Color(0.5, 0.85, 0.7))
-		elif pct > 75.0:
-			calib_meter_status.text = "Loud (Alerts Entities)"
-			calib_meter_status.add_theme_color_override("font_color", Color(0.95, 0.45, 0.45))
-		else:
-			calib_meter_status.text = "Voice Detected"
-			calib_meter_status.add_theme_color_override("font_color", Color(0.95, 0.85, 0.4))
+	if not style_transmitting:
+		style_transmitting = StyleBoxFlat.new()
+		style_transmitting.bg_color = Color(0.26, 0.82, 0.52, 0.95)
+		style_transmitting.corner_radius_top_left = 3
+		style_transmitting.corner_radius_top_right = 3
+		style_transmitting.corner_radius_bottom_right = 3
+		style_transmitting.corner_radius_bottom_left = 3
+	if not style_filtered:
+		style_filtered = StyleBoxFlat.new()
+		style_filtered.bg_color = Color(0.22, 0.28, 0.36, 0.8)
+		style_filtered.corner_radius_top_left = 3
+		style_filtered.corner_radius_top_right = 3
+		style_filtered.corner_radius_bottom_right = 3
+		style_filtered.corner_radius_bottom_left = 3
+
+	var is_speaking := (current_db >= thresh_db)
+	if is_speaking:
+		# Above gate: Bright green transmitting bar (Discord style)
+		if calib_progress_bar:
+			calib_progress_bar.add_theme_stylebox_override("fill", style_transmitting)
+		if calib_meter_status:
+			calib_meter_status.text = "Voice Transmitting (%d dB)" % int(current_db)
+			calib_meter_status.add_theme_color_override("font_color", Color(0.26, 0.85, 0.52))
+	else:
+		# Below gate: Filtered ambient noise (Dim slate bar)
+		if calib_progress_bar:
+			calib_progress_bar.add_theme_stylebox_override("fill", style_filtered)
+		if calib_meter_status:
+			if current_db <= -55.0:
+				calib_meter_status.text = "Silent (Noise Gate Closed)"
+				calib_meter_status.add_theme_color_override("font_color", Color(0.5, 0.6, 0.7))
+			else:
+				calib_meter_status.text = "Filtered Noise (%d dB)" % int(current_db)
+				calib_meter_status.add_theme_color_override("font_color", Color(0.7, 0.75, 0.5))
 
 
 func _update_threshold_label(val: float) -> void:
 	if not calib_threshold_val:
 		return
-	calib_threshold_val.text = "%d%%" % int(round(val * 1000.0))
-	if val < 0.015:
-		calib_threshold_val.add_theme_color_override("font_color", Color(0.9, 0.7, 0.4))
-	elif val > 0.035:
+	calib_threshold_val.text = "%d dB" % int(round(val))
+	if val < -45.0:
+		calib_threshold_val.add_theme_color_override("font_color", Color(0.95, 0.75, 0.4))
+	elif val > -25.0:
 		calib_threshold_val.add_theme_color_override("font_color", Color(0.95, 0.5, 0.5))
 	else:
-		calib_threshold_val.add_theme_color_override("font_color", Color(0.4, 0.95, 0.6))
+		calib_threshold_val.add_theme_color_override("font_color", Color(0.26, 0.85, 0.52))
 
 
 func _update_sensitivity_label(val: float) -> void:

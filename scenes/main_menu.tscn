@@ -186,6 +186,20 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_calib_transmitting"]
+bg_color = Color(0.26, 0.82, 0.52, 0.95)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_calib_filtered"]
+bg_color = Color(0.22, 0.28, 0.36, 0.8)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
 [node name="MainMenu" type="Control" unique_id=141184140]
 layout_mode = 3
 anchors_preset = 15
@@ -196,6 +210,7 @@ grow_vertical = 2
 script = ExtResource("1_menu")
 
 [node name="Background" type="ColorRect" parent="." unique_id=336699062]
+mouse_filter = 2
 material = SubResource("ShaderMaterial_menu_vignette")
 layout_mode = 1
 anchors_preset = 15
@@ -206,6 +221,7 @@ grow_vertical = 2
 color = Color(0.045, 0.05, 0.065, 1)
 
 [node name="MobileHeader" type="MarginContainer" parent="." unique_id=987110001]
+mouse_filter = 2
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -216,6 +232,7 @@ theme_override_constants/margin_top = 14
 theme_override_constants/margin_right = 24
 
 [node name="HeaderHBox" type="HBoxContainer" parent="MobileHeader"]
+mouse_filter = 2
 layout_mode = 2
 
 [node name="MobileBackButton" type="Button" parent="MobileHeader/HeaderHBox" unique_id=987110002]
@@ -237,6 +254,7 @@ theme_override_font_sizes/font_size = 11
 text = "v0.1.0-pre-alpha"
 
 [node name="MobileMainLayout" type="CenterContainer" parent="." unique_id=987110010]
+mouse_filter = 2
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -246,11 +264,13 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="SplitHBox" type="HBoxContainer" parent="MobileMainLayout"]
+mouse_filter = 2
 custom_minimum_size = Vector2(1100, 440)
 layout_mode = 2
 theme_override_constants/separation = 50
 
 [node name="LeftDossier" type="VBoxContainer" parent="MobileMainLayout/SplitHBox"]
+mouse_filter = 2
 custom_minimum_size = Vector2(500, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -306,6 +326,7 @@ text = "Laluan 189 • Stay quiet. Avoid the headlights."
 autowrap_mode = 2
 
 [node name="RightActions" type="VBoxContainer" parent="MobileMainLayout/SplitHBox"]
+mouse_filter = 2
 custom_minimum_size = Vector2(480, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -338,6 +359,7 @@ text = "OPTIONS
 Audio, Controls & Gameplay"
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=1340276127]
+mouse_filter = 2
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1188,17 +1210,17 @@ text = "Noise Filter Gate:"
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
-min_value = 0.005
-max_value = 0.08
-step = 0.002
-value = 0.025
+min_value = -60.0
+max_value = 0.0
+step = 1.0
+value = -36.0
 
 [node name="ThresholdValLabel" type="Label" parent="CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox/GateRow"]
 custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.95, 0.6, 1)
 theme_override_font_sizes/font_size = 12
-text = "25%"
+text = "-36 dB"
 horizontal_alignment = 2
 
 [node name="SensRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/MicCalibrationPanel/SlidersVBox"]
