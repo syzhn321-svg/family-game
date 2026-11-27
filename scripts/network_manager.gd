@@ -58,8 +58,8 @@ var local_settings: Dictionary = {
 	"touch_controls": "auto",       # "auto" (Mobile/Touch only), "on" (Always), "off"
 	"touch_size": "Smallest",       # "Smallest", "Medium", "Large"
 	"signaling_url": "wss://family-server-srkg.onrender.com",
-	"mic_threshold": 0.025,         # VAD activation threshold (0.005 to 0.10)
-	"mic_sensitivity": 1.0,         # Speech volume boost factor (0.5 to 2.5)
+	"mic_threshold": -36.0,         # VAD activation threshold in dB (-60.0 to 0.0)
+	"mic_sensitivity": 1.0,         # Speech volume boost factor (0.4 to 2.5)
 	"mic_calibrated": false,        # First-launch calibration flag
 	"skip_startup_mic_calib": false # Option to never show startup calibration slide again
 }
@@ -72,7 +72,7 @@ func save_local_settings() -> void:
 	cfg.set_value("gameplay", "crosshair_enabled", local_settings.get("crosshair_enabled", true))
 	cfg.set_value("gameplay", "touch_controls", local_settings.get("touch_controls", "auto"))
 	cfg.set_value("gameplay", "touch_size", local_settings.get("touch_size", "Smallest"))
-	cfg.set_value("gameplay", "mic_threshold", float(local_settings.get("mic_threshold", 0.025)))
+	cfg.set_value("gameplay", "mic_threshold", float(local_settings.get("mic_threshold", -36.0)))
 	cfg.set_value("gameplay", "mic_sensitivity", float(local_settings.get("mic_sensitivity", 1.0)))
 	cfg.set_value("gameplay", "mic_calibrated", bool(local_settings.get("mic_calibrated", false)))
 	cfg.set_value("gameplay", "skip_startup_mic_calib", bool(local_settings.get("skip_startup_mic_calib", false)))
@@ -87,7 +87,10 @@ func load_local_settings() -> void:
 		local_settings["crosshair_enabled"] = bool(cfg.get_value("gameplay", "crosshair_enabled", true))
 		local_settings["touch_controls"] = str(cfg.get_value("gameplay", "touch_controls", "auto"))
 		local_settings["touch_size"] = str(cfg.get_value("gameplay", "touch_size", "Smallest"))
-		local_settings["mic_threshold"] = float(cfg.get_value("gameplay", "mic_threshold", 0.025))
+		var raw_t: float = float(cfg.get_value("gameplay", "mic_threshold", -36.0))
+		if raw_t > 0.0:
+			raw_t = 20.0 * (log(raw_t) / log(10.0))
+		local_settings["mic_threshold"] = clampf(raw_t, -60.0, 0.0)
 		local_settings["mic_sensitivity"] = float(cfg.get_value("gameplay", "mic_sensitivity", 1.0))
 		local_settings["mic_calibrated"] = bool(cfg.get_value("gameplay", "mic_calibrated", false))
 		local_settings["skip_startup_mic_calib"] = bool(cfg.get_value("gameplay", "skip_startup_mic_calib", false))

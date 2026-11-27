@@ -1,0 +1,25 @@
+[configuration]
+
+entry_symbol = "two_voip_library_init"
+compatibility_minimum = "4.6.0"
+reloadable = false
+
+[dependencies]
+
+windows.x86_64 = { }
+linux.x86_64 = { }
+android.arm64 = { }
+
+windows.template_release.x86_64 = { }
+linux.template_release.x86_64 = { }
+android.template_release.arm64 = { }
+
+[libraries]
+
+windows.x86_64 = "libs/libtwovoip.windows.template_debug.x86_64.dll"
+linux.x86_64 = "libs/libtwovoip.linux.template_debug.x86_64.so"
+android.arm64 = "libs/libtwovoip.android.template_debug.arm64.so"
+
+windows.template_release.x86_64 = "libs/libtwovoip.windows.template_release.x86_64.dll"
+linux.template_release.x86_64 = "libs/libtwovoip.linux.template_release.x86_64.so"
+android.template_release.arm64 = "libs/libtwovoip.android.template_release.arm64.so"

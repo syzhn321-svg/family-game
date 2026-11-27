@@ -152,8 +152,11 @@ var is_manual_update_check: bool = false
 var pending_update_download_url: String = ""
 var pending_update_tag: String = ""
 
-var calib_audio_player: AudioStreamPlayer = null
-var calib_capture_effect: AudioEffectCapture = null
+const VOIP_TRANSMITTER_SCRIPT := preload("res://scripts/voip_transmitter.gd")
+var calib_voip_transmitter: VoipTransmitter = null
+var calib_last_db: float = -80.0
+var calib_last_speech_prob: float = 0.0
+var calib_has_audio_signal: bool = false
 var is_auto_calibrating: bool = false
 var auto_calib_timer: float = 0.0
 var auto_calib_samples: Array[float] = []
@@ -1702,11 +1705,11 @@ func _close_mic_calibration_screen() -> void:
 	if mic_calib_modal and mic_calib_modal != mic_calib_screen:
 		mic_calib_modal.visible = false
 	is_auto_calibrating = false
-	if is_instance_valid(calib_audio_player):
-		calib_audio_player.stop()
-		calib_audio_player.queue_free()
-		calib_audio_player = null
-	calib_capture_effect = null
+	calib_has_audio_signal = false
+	if is_instance_valid(calib_voip_transmitter):
+		calib_voip_transmitter.stop_capture()
+		calib_voip_transmitter.queue_free()
+		calib_voip_transmitter = null
 
 
 func _close_mic_calibration_modal() -> void:
@@ -1714,23 +1717,26 @@ func _close_mic_calibration_modal() -> void:
 
 
 func _setup_calib_microphone() -> void:
-	if not is_instance_valid(calib_audio_player):
-		calib_audio_player = AudioStreamPlayer.new()
-		calib_audio_player.name = "CalibMicrophonePlayer"
-		var mic_stream := AudioStreamMicrophone.new()
-		calib_audio_player.stream = mic_stream
-		calib_audio_player.bus = &"Record"
-		add_child(calib_audio_player)
-		calib_audio_player.play()
+	calib_last_db = -80.0
+	calib_last_speech_prob = 0.0
+	calib_has_audio_signal = false
+	if not is_instance_valid(calib_voip_transmitter):
+		calib_voip_transmitter = VOIP_TRANSMITTER_SCRIPT.new()
+		calib_voip_transmitter.name = "CalibVoipTransmitter"
+		calib_voip_transmitter.preview_only = true
+		add_child(calib_voip_transmitter)
+		calib_voip_transmitter.level_updated.connect(_on_calib_level_updated)
 
-	var record_idx := AudioServer.get_bus_index("Record")
-	if record_idx >= 0:
-		for i in range(AudioServer.get_bus_effect_count(record_idx)):
-			var eff := AudioServer.get_bus_effect(record_idx, i)
-			if eff is AudioEffectCapture:
-				calib_capture_effect = eff
-				calib_capture_effect.clear_buffer()
-				break
+	var thresh_db: float = calib_threshold_slider.value if calib_threshold_slider else -36.0
+	var sens: float = calib_sens_slider.value if calib_sens_slider else 1.0
+	calib_voip_transmitter.configure_mic_settings(thresh_db, sens)
+	calib_voip_transmitter.start_capture()
+
+
+func _on_calib_level_updated(db: float, _rms: float, speech_prob: float, _is_transmitting: bool) -> void:
+	calib_last_db = db
+	calib_last_speech_prob = speech_prob
+	calib_has_audio_signal = true
 
 
 func _process(delta: float) -> void:
@@ -1749,48 +1755,39 @@ func _db_to_linear(db: float) -> float:
 
 
 func _process_mic_calibration(delta: float) -> void:
-	if not calib_capture_effect:
+	if not is_instance_valid(calib_voip_transmitter) or not calib_has_audio_signal:
 		return
-
-	var frames_avail := calib_capture_effect.get_frames_available()
-	var rms := 0.0
-	if frames_avail > 0:
-		var buf := calib_capture_effect.get_buffer(frames_avail)
-		var sum := 0.0
-		for sample in buf:
-			var s := (sample.x + sample.y) * 0.5
-			sum += s * s
-		rms = sqrt(sum / float(frames_avail))
 
 	var thresh_db: float = calib_threshold_slider.value if calib_threshold_slider else -36.0
 	var sens: float = calib_sens_slider.value if calib_sens_slider else 1.0
-	var current_db: float = _linear_to_db(rms * sens)
+	calib_voip_transmitter.configure_mic_settings(thresh_db, sens)
+	var current_db: float = calib_last_db
+	var speech_prob: float = calib_last_speech_prob
 
-	# Auto-calibration sampling in Decibels (Discord algorithm)
+	# Auto-calibration sampling on RNNoise-filtered + AGC-normalized dB floor
 	if is_auto_calibrating:
 		auto_calib_timer += delta
 		auto_calib_samples.append(current_db)
 		var remaining: float = maxf(0.0, 1.8 - auto_calib_timer)
 		if calib_auto_status:
-			calib_auto_status.text = "Sampling background noise... stay quiet (%.1fs)" % remaining
+			calib_auto_status.text = "Sampling RNNoise floor... stay quiet (%.1fs)" % remaining
 			calib_auto_status.add_theme_color_override("font_color", Color(1.0, 0.85, 0.45))
 		if auto_calib_timer >= 1.8:
 			is_auto_calibrating = false
 			if calib_auto_button:
 				calib_auto_button.disabled = false
 				calib_auto_button.text = "Re-Detect Background Noise"
-			# Find peak ambient noise floor during test
 			var peak_noise_db: float = -80.0
 			for s in auto_calib_samples:
 				if s > peak_noise_db:
 					peak_noise_db = s
-			# Set gate 8.0 dB safely above room noise floor to eliminate bleeding
-			var recommended_db: float = clampf(peak_noise_db + 8.0, -55.0, -15.0)
+			# With RNNoise active, +7 dB above denoised floor rejects breathing/bleed cleanly
+			var recommended_db: float = clampf(peak_noise_db + 7.0, -55.0, -15.0)
 			if calib_threshold_slider:
 				calib_threshold_slider.value = recommended_db
 			_update_threshold_label(recommended_db)
 			if calib_auto_status:
-				calib_auto_status.text = "Calibrated! Gate set to %d dB (Noise floor: %d dB)" % [int(recommended_db), int(peak_noise_db)]
+				calib_auto_status.text = "Calibrated! Gate set to %d dB (RNNoise floor: %d dB)" % [int(recommended_db), int(peak_noise_db)]
 				calib_auto_status.add_theme_color_override("font_color", Color(0.26, 0.82, 0.52))
 
 	# Discord-style meter: -60 dB to 0 dB mapped to 0% - 100%
@@ -1813,24 +1810,22 @@ func _process_mic_calibration(delta: float) -> void:
 		style_filtered.corner_radius_bottom_right = 3
 		style_filtered.corner_radius_bottom_left = 3
 
-	var is_speaking := (current_db >= thresh_db)
+	var is_speaking: bool = (current_db >= thresh_db and speech_prob >= 0.15) or (current_db >= thresh_db + 6.0)
 	if is_speaking:
-		# Above gate: Bright green transmitting bar (Discord style)
 		if calib_progress_bar:
 			calib_progress_bar.add_theme_stylebox_override("fill", style_transmitting)
 		if calib_meter_status:
-			calib_meter_status.text = "Voice Transmitting (%d dB)" % int(current_db)
+			calib_meter_status.text = "Voice Active (%d dB | AI %.0f%%)" % [int(current_db), speech_prob * 100.0]
 			calib_meter_status.add_theme_color_override("font_color", Color(0.26, 0.85, 0.52))
 	else:
-		# Below gate: Filtered ambient noise (Dim slate bar)
 		if calib_progress_bar:
 			calib_progress_bar.add_theme_stylebox_override("fill", style_filtered)
 		if calib_meter_status:
 			if current_db <= -55.0:
-				calib_meter_status.text = "Silent (Noise Gate Closed)"
+				calib_meter_status.text = "Silent (RNNoise Gate Closed)"
 				calib_meter_status.add_theme_color_override("font_color", Color(0.5, 0.6, 0.7))
 			else:
-				calib_meter_status.text = "Filtered Noise (%d dB)" % int(current_db)
+				calib_meter_status.text = "Noise Suppressed (%d dB)" % int(current_db)
 				calib_meter_status.add_theme_color_override("font_color", Color(0.7, 0.75, 0.5))
 
 
@@ -1906,7 +1901,7 @@ func _on_skip_calib_button_pressed() -> void:
 func _on_save_calib_button_pressed() -> void:
 	var net := get_node_or_null("/root/NetworkManager")
 	if net and net.get("local_settings") != null:
-		var th: float = calib_threshold_slider.value if calib_threshold_slider else 0.025
+		var th: float = calib_threshold_slider.value if calib_threshold_slider else -36.0
 		var sens: float = calib_sens_slider.value if calib_sens_slider else 1.0
 		var skip_again: bool = calib_dont_show_check.button_pressed if calib_dont_show_check else false
 		net.local_settings["mic_threshold"] = th

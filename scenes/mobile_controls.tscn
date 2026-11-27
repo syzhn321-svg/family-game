@@ -555,7 +555,7 @@ text = "Mic Gate (Filter Noise):"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.85, 0.7, 1)
 theme_override_font_sizes/font_size = 13
-text = "25%"
+text = "-36 dB"
 
 [node name="MicThreshSlider" type="HSlider" parent="TouchRoot/OptionsModal/MoreOptionsContainer/MicVBox"]
 custom_minimum_size = Vector2(0, 22)
@@ -566,10 +566,10 @@ theme_override_icons/grabber_highlight = ExtResource("9_grabber")
 theme_override_styles/slider = SubResource("StyleBoxFlat_slider_bg")
 theme_override_styles/grabber_area = SubResource("StyleBoxFlat_slider_bg")
 theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_slider_bg")
-min_value = 0.005
-max_value = 0.1
-step = 0.005
-value = 0.025
+min_value = -60.0
+max_value = 0.0
+step = 1.0
+value = -36.0
 
 [node name="MicSensRow" type="HBoxContainer" parent="TouchRoot/OptionsModal/MoreOptionsContainer/MicVBox"]
 layout_mode = 2

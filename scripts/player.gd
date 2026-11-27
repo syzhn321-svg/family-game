@@ -43,7 +43,6 @@ const SFX_STEP_1: AudioStream = preload("res://assets/audio/sfx_footstep_wood_1.
 const SFX_STEP_2: AudioStream = preload("res://assets/audio/sfx_footstep_wood_2.wav")
 
 @onready var voice_player_3d: AudioStreamPlayer3D = $nek/head/VoicePlayer3D
-@onready var voice_capture_player: AudioStreamPlayer = $VoiceCapturePlayer
 @onready var voice_indicator: Label3D = $VoiceIndicator
 @onready var voice_hud: CanvasLayer = $VoiceHUD
 @onready var voice_mic_icon: Label = get_node_or_null("VoiceHUD/VoiceRoot/MarginContainer/VoicePanel/VoiceRow/MicIcon") if has_node("VoiceHUD/VoiceRoot/MarginContainer/VoicePanel/VoiceRow/MicIcon") else (get_node_or_null("VoiceHUD/MarginContainer/VoicePanel/VoiceRow/MicIcon") if has_node("VoiceHUD/MarginContainer/VoicePanel/VoiceRow/MicIcon") else get_node_or_null("VoiceHUD/MarginContainer/VoicePanel/VBoxContainer/VoiceRow/MicIcon"))
@@ -77,11 +76,14 @@ var _was_crouching: bool = false
 @onready var flashlight_battery_label: Label = $FlashlightHUD/MarginContainer/FlashlightPanel/VBoxContainer/BatteryRow/FlashlightBatteryLabel
 @onready var flashlight_prompt_label: Label = $FlashlightHUD/MarginContainer/FlashlightPanel/VBoxContainer/FlashlightPromptLabel
 
+const VOIP_TRANSMITTER_SCRIPT := preload("res://scripts/voip_transmitter.gd")
+const TWOVOIP_SPEAKER_SCENE: PackedScene = preload("res://addons/twovoip/voiphelper/two_voip_speaker.tscn")
+
 enum VoiceMode { PUSH_TO_TALK, OPEN_MIC, ALWAYS_ON }
 var voice_mode: VoiceMode = VoiceMode.OPEN_MIC
 var is_mic_muted: bool = false
-var voice_capture_effect: AudioEffectCapture = null
-var voice_generator_playback: AudioStreamGeneratorPlayback = null
+var voice_transmitter: VoipTransmitter = null
+var voice_speaker: Node = null
 
 # --- Mobile Touch Input State ---
 var touch_move_vector: Vector2 = Vector2.ZERO
@@ -95,27 +97,7 @@ var interact_ray_cast: RayCast3D = null
 
 var mic_threshold: float = -36.0
 var mic_sensitivity: float = 1.0
-const VAD_HOLD_TIME: float = 0.35
-var vad_timer: float = 0.0
-var voice_timer: float = 0.0
 var remote_talking_timer: float = 0.0
-
-# AAA VOIP Pipeline Standards (Opus Wideband Standard: 24kHz Mono 16-bit PCM)
-const VOICE_SAMPLE_RATE: float = 24000.0
-const VOICE_CHUNK_INTERVAL: float = 0.04   # 40ms audio chunks
-const VOICE_CHUNK_SAMPLES: int = 960        # 24000 * 0.04 = 960 samples
-const VOICE_CHUNK_BYTES: int = 1920         # 960 samples * 2 bytes
-const PRE_BUFFER_MAX_BYTES: int = 3840      # 80ms pre-roll to capture leading consonants
-
-var voice_pre_buffer: PackedByteArray = PackedByteArray()
-var voice_outgoing_pcm: PackedByteArray = PackedByteArray()
-var _was_transmitting: bool = false
-
-# Receiver Jitter Buffer Queue (Zero frame drops, jitter-absorbed streaming)
-var voice_jitter_queue: PackedFloat32Array = PackedFloat32Array()
-var voice_jitter_primed: bool = false
-const JITTER_PRE_ROLL_SAMPLES: int = 1440   # 60ms target pre-roll buffer
-const JITTER_MAX_SAMPLES: int = 12000       # 500ms max buffer cap (prevents lag accumulation)
 
 # --- Identity & Host Sync ---
 var crosshair_enabled: bool = true
@@ -996,9 +978,18 @@ func apply_touch_look(relative: Vector2) -> void:
 
 func toggle_mic_mute() -> void:
 	is_mic_muted = not is_mic_muted
+	if voice_transmitter:
+		voice_transmitter.is_muted = is_mic_muted
 	if mobile_controls:
 		mobile_controls.update_mic_ui(is_mic_muted)
 	_update_voice_hud_status(false, 0.0)
+
+
+func set_mic_settings(p_threshold_db: float, p_sensitivity: float) -> void:
+	mic_threshold = p_threshold_db
+	mic_sensitivity = clampf(p_sensitivity, 0.25, 4.0)
+	if voice_transmitter:
+		voice_transmitter.configure_mic_settings(mic_threshold, mic_sensitivity)
 
 
 func _execute_crank_tick() -> void:
@@ -1378,232 +1369,133 @@ func _physics_process(delta: float) -> void:
 		crosshair_ring.visible = show_ring
 
 
-# --- Proximity Voice Chat System (AAA Studio Jitter-Buffered VOIP) ---
+# --- Proximity Voice Chat System (Native TwoVoIP: Opus + RNNoise + SpeexDSP) ---
 func _setup_voice_capture() -> void:
 	if not is_multiplayer_authority():
 		return
-	if voice_capture_player:
-		voice_capture_player.bus = &"Record"
-	var record_bus_idx := AudioServer.get_bus_index("Record")
-	if record_bus_idx != -1:
-		for i in range(AudioServer.get_bus_effect_count(record_bus_idx)):
-			var effect := AudioServer.get_bus_effect(record_bus_idx, i)
-			if effect is AudioEffectCapture:
-				voice_capture_effect = effect
-				voice_capture_effect.clear_buffer()
-				break
-	
-	if voice_capture_effect and voice_capture_player:
-		voice_capture_player.play()
-		_update_voice_hud_status(false, 0.0)
-		print("VoiceChat: Microphone capture initialized on 'Record' bus.")
-	else:
-		push_warning("VoiceChat: Could not find AudioEffectCapture on 'Record' bus.")
+	if not is_instance_valid(voice_transmitter):
+		voice_transmitter = VOIP_TRANSMITTER_SCRIPT.new()
+		voice_transmitter.name = "VoipTransmitter"
+		add_child(voice_transmitter)
+		voice_transmitter.control_packet_ready.connect(_on_voice_control_packet_ready)
+		voice_transmitter.audio_packet_ready.connect(_on_voice_audio_packet_ready)
+		voice_transmitter.level_updated.connect(_on_voice_level_updated)
+
+	voice_transmitter.preview_only = false
+	voice_transmitter.is_muted = is_mic_muted
+	voice_transmitter.configure_mic_settings(mic_threshold, mic_sensitivity)
+	match voice_mode:
+		VoiceMode.PUSH_TO_TALK:
+			voice_transmitter.voice_mode = VoipTransmitter.VoiceMode.PUSH_TO_TALK
+		VoiceMode.ALWAYS_ON:
+			voice_transmitter.voice_mode = VoipTransmitter.VoiceMode.ALWAYS_ON
+		_:
+			voice_transmitter.voice_mode = VoipTransmitter.VoiceMode.OPEN_MIC
+
+	if multiplayer and not multiplayer.peer_connected.is_connected(_on_voip_peer_connected):
+		multiplayer.peer_connected.connect(_on_voip_peer_connected)
+
+	voice_transmitter.start_capture()
+	_update_voice_hud_status(false, 0.0)
 
 
 func _setup_voice_playback() -> void:
-	if voice_player_3d:
-		var gen := voice_player_3d.stream as AudioStreamGenerator
-		if not gen:
-			gen = AudioStreamGenerator.new()
-			voice_player_3d.stream = gen
-		gen.mix_rate = VOICE_SAMPLE_RATE
-		gen.buffer_length = 0.5
-		if not voice_player_3d.playing:
-			voice_player_3d.play()
-		voice_generator_playback = voice_player_3d.get_stream_playback() as AudioStreamGeneratorPlayback
+	if is_multiplayer_authority():
+		return
+	if voice_player_3d and not is_instance_valid(voice_speaker):
+		voice_speaker = TWOVOIP_SPEAKER_SCENE.instantiate()
+		voice_speaker.name = "TwoVoipSpeaker"
+		voice_speaker.audio_buffer_lag_time_target = 0.16
+		voice_speaker.audio_buffer_length = 2.5
+		voice_speaker.maximum_playout_recovery_speed = 1.08
+		voice_speaker.stale_episode_timeout = 3.0
+		voice_speaker.missing_footer_timeout = 3.0
+		voice_player_3d.add_child(voice_speaker)
 
 
-func _linear_to_db(lin: float) -> float:
-	if lin <= 0.00001:
-		return -80.0
-	return 20.0 * (log(lin) / log(10.0))
+func _on_voip_peer_connected(peer_id: int) -> void:
+	if not is_multiplayer_authority() or not voice_transmitter:
+		return
+	var midstream := voice_transmitter.get_midstream_control_packets()
+	for pkt in midstream:
+		receive_voice_control_packet.rpc_id(peer_id, pkt)
 
 
-func _resample_audio_to_mono_pcm16(source_frames: PackedVector2Array, src_rate: float, dst_rate: float) -> PackedByteArray:
-	if source_frames.is_empty() or src_rate <= 0.0 or dst_rate <= 0.0:
-		return PackedByteArray()
-	var ratio: float = src_rate / dst_rate
-	var out_sample_count: int = int(float(source_frames.size()) / ratio)
-	if out_sample_count <= 0:
-		return PackedByteArray()
-	var out_bytes := PackedByteArray()
-	out_bytes.resize(out_sample_count * 2)
-	var src_count: int = source_frames.size()
-	for j in range(out_sample_count):
-		var pos: float = float(j) * ratio
-		var idx0: int = int(pos)
-		var idx1: int = mini(idx0 + 1, src_count - 1)
-		var frac: float = pos - float(idx0)
-		var s0: float = (source_frames[idx0].x + source_frames[idx0].y) * 0.5
-		var s1: float = (source_frames[idx1].x + source_frames[idx1].y) * 0.5
-		var mono: float = lerpf(s0, s1, frac) * mic_sensitivity
-		var int16: int = clampi(int(mono * 32767.0), -32768, 32767)
-		if int16 < 0:
-			int16 += 65536
-		var b_idx: int = j * 2
-		out_bytes[b_idx] = int16 & 0xFF
-		out_bytes[b_idx + 1] = (int16 >> 8) & 0xFF
-	return out_bytes
+func _on_voice_control_packet_ready(packet: PackedByteArray) -> void:
+	if not multiplayer or not multiplayer.multiplayer_peer:
+		return
+	if multiplayer.get_peers().is_empty():
+		return
+	receive_voice_control_packet.rpc(packet)
+
+
+func _on_voice_audio_packet_ready(packet: PackedByteArray) -> void:
+	if not multiplayer or not multiplayer.multiplayer_peer:
+		return
+	if multiplayer.get_peers().is_empty():
+		return
+	receive_voice_audio_packet.rpc(packet)
+
+
+func _on_voice_level_updated(current_db: float, rms: float, _speech_prob: float, is_transmitting: bool) -> void:
+	_update_voice_hud_status(is_transmitting, rms)
+	if is_transmitting:
+		var speech_loudness: float = clampf((current_db + 45.0) / 35.0, 0.15, 1.0)
+		noise_impulse = maxf(noise_impulse, speech_loudness)
 
 
 func _process_voice_chat(delta: float) -> void:
 	if not is_multiplayer_authority():
-		_process_remote_voice_playback(delta)
-		if remote_talking_timer > 0.0:
+		var actively_playing: bool = false
+		if voice_speaker and voice_speaker.get("inopusstream") == true:
+			actively_playing = true
+		if actively_playing:
+			remote_talking_timer = maxf(remote_talking_timer, 0.25)
+		elif remote_talking_timer > 0.0:
 			remote_talking_timer -= delta
 			if remote_talking_timer <= 0.0 and voice_indicator:
 				voice_indicator.visible = false
 		return
 
-	var raw_frames := PackedVector2Array()
-	var rms: float = 0.0
-	if voice_capture_effect:
-		var frames_avail := voice_capture_effect.get_frames_available()
-		if frames_avail > 0:
-			raw_frames = voice_capture_effect.get_buffer(frames_avail)
-			var sum_sq: float = 0.0
-			for frame in raw_frames:
-				var mono := (frame.x + frame.y) * 0.5
-				sum_sq += mono * mono
-			rms = sqrt(sum_sq / float(raw_frames.size())) if raw_frames.size() > 0 else 0.0
+	if Input.is_action_just_pressed("toggle_voice_mode"):
+		toggle_mic_mute()
 
-	var current_db := _linear_to_db(rms * mic_sensitivity)
-
-	# Check Voice Activity (PTT key held vs Discord VAD dB Gate vs Always On vs Muted)
-	var ptt_active := Input.is_action_pressed("push_to_talk")
-	var should_transmit := false
-	if is_mic_muted:
-		should_transmit = false
-	elif voice_mode == VoiceMode.ALWAYS_ON:
-		should_transmit = true
-	elif voice_mode == VoiceMode.OPEN_MIC:
-		# Discord Hysteresis: open at mic_threshold (e.g. -36 dB), keep open down to (mic_threshold - 5.0 dB)
-		if current_db > mic_threshold:
-			vad_timer = VAD_HOLD_TIME
-		elif current_db > (mic_threshold - 5.0) and vad_timer > 0.0:
-			vad_timer = max(0.0, vad_timer - delta)
-		else:
-			vad_timer = max(0.0, vad_timer - delta)
-		should_transmit = (vad_timer > 0.0)
-	elif voice_mode == VoiceMode.PUSH_TO_TALK:
-		should_transmit = ptt_active
-
-	_update_voice_hud_status(should_transmit, rms)
-
-	# Continuous Resampling from hardware mix rate to 24kHz 16-bit PCM
-	var new_pcm := PackedByteArray()
-	if not raw_frames.is_empty():
-		var hw_mix_rate: float = float(AudioServer.get_mix_rate())
-		new_pcm = _resample_audio_to_mono_pcm16(raw_frames, hw_mix_rate, VOICE_SAMPLE_RATE)
-
-	if should_transmit:
-		var speech_loudness: float = clampf((current_db + 45.0) / 35.0, 0.15, 1.0)
-		noise_impulse = maxf(noise_impulse, speech_loudness)
-
-		# Prepend pre-buffer on speech onset to capture leading consonants
-		if not _was_transmitting and not voice_pre_buffer.is_empty():
-			voice_outgoing_pcm.append_array(voice_pre_buffer)
-			voice_pre_buffer.clear()
-
-		if not new_pcm.is_empty():
-			voice_outgoing_pcm.append_array(new_pcm)
-
-		voice_timer += delta
-		if voice_timer >= VOICE_CHUNK_INTERVAL and voice_outgoing_pcm.size() >= VOICE_CHUNK_BYTES:
-			voice_timer = 0.0
-			while voice_outgoing_pcm.size() >= VOICE_CHUNK_BYTES:
-				var chunk: PackedByteArray = voice_outgoing_pcm.slice(0, VOICE_CHUNK_BYTES)
-				voice_outgoing_pcm = voice_outgoing_pcm.slice(VOICE_CHUNK_BYTES)
-				_send_voice_chunk(chunk)
-	else:
-		voice_timer = 0.0
-		# While silent, maintain rolling pre-buffer (~80ms) for consonant capture
-		if not new_pcm.is_empty():
-			voice_pre_buffer.append_array(new_pcm)
-			if voice_pre_buffer.size() > PRE_BUFFER_MAX_BYTES:
-				voice_pre_buffer = voice_pre_buffer.slice(voice_pre_buffer.size() - PRE_BUFFER_MAX_BYTES)
-		voice_outgoing_pcm.clear()
-
-	_was_transmitting = should_transmit
+	if voice_transmitter:
+		voice_transmitter.ptt_held = Input.is_action_pressed("push_to_talk")
+		voice_transmitter.is_muted = is_mic_muted
 
 
-func _send_voice_chunk(pcm_bytes: PackedByteArray) -> void:
-	if pcm_bytes.is_empty():
-		return
-	var uncompressed_size := pcm_bytes.size()
-	var compressed := pcm_bytes.compress(FileAccess.COMPRESSION_FASTLZ)
-	receive_voice_chunk.rpc(compressed, uncompressed_size)
-
-
-@rpc("any_peer", "call_remote", "unreliable_ordered")
-func receive_voice_chunk(compressed_chunk: PackedByteArray, uncompressed_size: int) -> void:
+@rpc("any_peer", "call_remote", "reliable")
+func receive_voice_control_packet(packet: PackedByteArray) -> void:
 	if is_multiplayer_authority():
 		return
-
-	if not voice_generator_playback:
+	if not is_instance_valid(voice_speaker):
 		_setup_voice_playback()
+	if not is_instance_valid(voice_speaker):
+		return
+	voice_speaker.receive_audio_packet(packet)
+	if voice_indicator:
+		var ctrl := TwoVoipPacket.decode_control_packet(packet)
+		if not ctrl.is_empty():
+			if ctrl[0] == TwoVoipPacket.TYPE_START:
+				voice_indicator.visible = true
+				remote_talking_timer = 0.5
+			elif ctrl[0] == TwoVoipPacket.TYPE_END:
+				remote_talking_timer = minf(remote_talking_timer, 0.15)
 
-	# Display 3D talking indicator above player's head
+
+@rpc("any_peer", "call_remote", "unreliable")
+func receive_voice_audio_packet(packet: PackedByteArray) -> void:
+	if is_multiplayer_authority():
+		return
+	if not is_instance_valid(voice_speaker):
+		_setup_voice_playback()
+	if not is_instance_valid(voice_speaker):
+		return
 	if voice_indicator:
 		voice_indicator.visible = true
-		remote_talking_timer = 0.35
-
-	var raw_bytes := compressed_chunk.decompress(uncompressed_size, FileAccess.COMPRESSION_FASTLZ)
-	if raw_bytes.is_empty():
-		return
-
-	var num_samples: int = raw_bytes.size() / 2
-	var new_samples := PackedFloat32Array()
-	new_samples.resize(num_samples)
-
-	for i in range(num_samples):
-		var byte_idx: int = i * 2
-		var low: int = raw_bytes[byte_idx]
-		var high: int = raw_bytes[byte_idx + 1]
-		var int16: int = low | (high << 8)
-		if int16 >= 32768:
-			int16 -= 65536
-		new_samples[i] = float(int16) / 32767.0
-
-	voice_jitter_queue.append_array(new_samples)
-
-
-func _process_remote_voice_playback(_delta: float) -> void:
-	if not voice_generator_playback:
-		_setup_voice_playback()
-	if not voice_generator_playback:
-		return
-
-	if voice_jitter_queue.is_empty():
-		voice_jitter_primed = false
-		return
-
-	# Pre-roll threshold to absorb initial packet arrival jitter without starving
-	if not voice_jitter_primed:
-		if voice_jitter_queue.size() >= JITTER_PRE_ROLL_SAMPLES:
-			voice_jitter_primed = true
-		else:
-			return
-
-	# Bound maximum latency during network spikes
-	if voice_jitter_queue.size() > JITTER_MAX_SAMPLES:
-		voice_jitter_queue = voice_jitter_queue.slice(voice_jitter_queue.size() - JITTER_MAX_SAMPLES)
-
-	var frames_avail: int = voice_generator_playback.get_frames_available()
-	if frames_avail <= 0:
-		return
-
-	var count_to_push: int = mini(frames_avail, voice_jitter_queue.size())
-	for i in range(count_to_push):
-		var s: float = voice_jitter_queue[i]
-		voice_generator_playback.push_frame(Vector2(s, s))
-
-	if count_to_push == voice_jitter_queue.size():
-		voice_jitter_queue.clear()
-		voice_jitter_primed = false
-	else:
-		voice_jitter_queue = voice_jitter_queue.slice(count_to_push)
+		remote_talking_timer = 0.45
+	voice_speaker.receive_audio_packet(packet)
 
 
 func _update_voice_hud_status(is_transmitting: bool, volume: float) -> void:

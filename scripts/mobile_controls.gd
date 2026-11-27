@@ -404,12 +404,15 @@ func _on_settings_button_pressed() -> void:
 			if player_ref and player_ref.get("mouse_sens") != null:
 				sens_slider.value = float(player_ref.get("mouse_sens"))
 			if mic_thresh_slider:
-				var th: float = player_ref.mic_threshold if player_ref and "mic_threshold" in player_ref else 0.025
+				var th: float = float(player_ref.mic_threshold) if player_ref and "mic_threshold" in player_ref else -36.0
+				if th > 0.0:
+					th = 20.0 * (log(th) / log(10.0))
+				th = clampf(th, -60.0, 0.0)
 				mic_thresh_slider.value = th
 				if mic_thresh_val:
-					mic_thresh_val.text = "%d%%" % int(round(th * 1000.0))
+					mic_thresh_val.text = "%d dB" % int(round(th))
 			if mic_sens_slider:
-				var sens: float = player_ref.mic_sensitivity if player_ref and "mic_sensitivity" in player_ref else 1.0
+				var sens: float = float(player_ref.mic_sensitivity) if player_ref and "mic_sensitivity" in player_ref else 1.0
 				mic_sens_slider.value = sens
 				if mic_sens_val:
 					mic_sens_val.text = "%.1fx" % sens
@@ -467,8 +470,11 @@ func _set_more_options_expanded(expanded: bool) -> void:
 
 func _on_mic_thresh_slider_value_changed(val: float) -> void:
 	if mic_thresh_val:
-		mic_thresh_val.text = "%d%%" % int(round(val * 1000.0))
-	if player_ref and "mic_threshold" in player_ref:
+		mic_thresh_val.text = "%d dB" % int(round(val))
+	if player_ref and player_ref.has_method("set_mic_settings"):
+		var s: float = float(player_ref.mic_sensitivity) if "mic_sensitivity" in player_ref else 1.0
+		player_ref.set_mic_settings(val, s)
+	elif player_ref and "mic_threshold" in player_ref:
 		player_ref.mic_threshold = val
 	var net: Node = get_node_or_null("/root/NetworkManager")
 	if net and net.get("local_settings") != null:
@@ -479,7 +485,10 @@ func _on_mic_thresh_slider_value_changed(val: float) -> void:
 func _on_mic_sens_slider_value_changed(val: float) -> void:
 	if mic_sens_val:
 		mic_sens_val.text = "%.1fx" % val
-	if player_ref and "mic_sensitivity" in player_ref:
+	if player_ref and player_ref.has_method("set_mic_settings"):
+		var th: float = float(player_ref.mic_threshold) if "mic_threshold" in player_ref else -36.0
+		player_ref.set_mic_settings(th, val)
+	elif player_ref and "mic_sensitivity" in player_ref:
 		player_ref.mic_sensitivity = val
 	var net: Node = get_node_or_null("/root/NetworkManager")
 	if net and net.get("local_settings") != null:
