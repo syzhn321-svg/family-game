@@ -635,7 +635,7 @@ text = "COPY"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.8, 0.6, 1)
 theme_override_font_sizes/font_size = 11
-text = "● Online & LAN Ready (Port 8910)"
+text = "Online & LAN Ready (Port 8910)"
 horizontal_alignment = 1
 
 [node name="LobbyIpRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/LobbyPanel" unique_id=471195245]
@@ -735,13 +735,19 @@ text = "LEAVE LOBBY"
 [node name="OptionsPanel" type="VBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=792564396]
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 10
 
 [node name="OptionsTitle" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel" unique_id=590878589]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-text = "GAME OPTIONS"
+text = "OPTIONS"
 horizontal_alignment = 1
+
+[node name="AudioLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.65, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "AUDIO"
 
 [node name="VoiceBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel" unique_id=643373453]
 layout_mode = 2
@@ -756,6 +762,27 @@ text = "Voice Chat:"
 [node name="VoiceModeOption" type="OptionButton" parent="CenterContainer/VBoxContainer/OptionsPanel/VoiceBox" unique_id=2024246032]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="MicBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MicLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel/MicBox"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Microphone:"
+
+[node name="CalibrateMicButton" type="Button" parent="CenterContainer/VBoxContainer/OptionsPanel/MicBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Calibrate Microphone"
+
+[node name="GameplayLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.65, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "GAMEPLAY"
 
 [node name="CrosshairBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel" unique_id=1517433079]
 layout_mode = 2
@@ -772,41 +799,81 @@ layout_mode = 2
 button_pressed = true
 text = "Show Center Dot"
 
-[node name="TouchSizeBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel"]
+[node name="MobileSection" type="VBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel" unique_id=987654350]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MobileLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel/MobileSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.65, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "TOUCH CONTROLS"
+
+[node name="TouchSizeBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel/MobileSection"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="TouchSizeLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel/TouchSizeBox"]
-custom_minimum_size = Vector2(130, 0)
+[node name="TouchSizeLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel/MobileSection/TouchSizeBox"]
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "Touch Control Size:"
+text = "Touch Size:"
 
-[node name="TouchSizeOption" type="OptionButton" parent="CenterContainer/VBoxContainer/OptionsPanel/TouchSizeBox"]
+[node name="TouchSizeOption" type="OptionButton" parent="CenterContainer/VBoxContainer/OptionsPanel/MobileSection/TouchSizeBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="MicBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel"]
+[node name="WindowsSection" type="VBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel" unique_id=987654351]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="WindowsLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel/WindowsSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.65, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "DISPLAY"
+
+[node name="DisplayModeBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel/WindowsSection"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="MicLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel/MicBox"]
-custom_minimum_size = Vector2(130, 0)
+[node name="DisplayModeLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel/WindowsSection/DisplayModeBox"]
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "Microphone:"
+text = "Window Mode:"
 
-[node name="CalibrateMicButton" type="Button" parent="CenterContainer/VBoxContainer/OptionsPanel/MicBox"]
+[node name="DisplayModeOption" type="OptionButton" parent="CenterContainer/VBoxContainer/OptionsPanel/WindowsSection/DisplayModeBox" unique_id=987654352]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Calibrate Mic 🎙️"
+
+[node name="VsyncBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel/WindowsSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="VsyncLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel/WindowsSection/VsyncBox"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "V-Sync:"
+
+[node name="VsyncCheck" type="CheckBox" parent="CenterContainer/VBoxContainer/OptionsPanel/WindowsSection/VsyncBox" unique_id=987654353]
+layout_mode = 2
+button_pressed = true
+text = "Limit Screen Tearing"
+
+[node name="InfoLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.65, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "GAME INFO"
 
 [node name="UpdateBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/OptionsPanel"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
 [node name="UpdateVersionLabel" type="Label" parent="CenterContainer/VBoxContainer/OptionsPanel/UpdateBox"]
-custom_minimum_size = Vector2(130, 0)
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
 text = "v0.1.0-pre-alpha"
@@ -814,7 +881,7 @@ text = "v0.1.0-pre-alpha"
 [node name="CheckUpdatesButton" type="Button" parent="CenterContainer/VBoxContainer/OptionsPanel/UpdateBox" unique_id=987654343]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Check for Updates 🔄"
+text = "Check for Updates"
 
 [node name="HSeparatorOptions" type="HSeparator" parent="CenterContainer/VBoxContainer/OptionsPanel" unique_id=1023509240]
 layout_mode = 2
@@ -952,7 +1019,7 @@ theme_override_constants/separation = 6
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.95, 0.98, 1)
 theme_override_font_sizes/font_size = 24
-text = "🎙️ MICROPHONE SETUP"
+text = "MICROPHONE SETUP"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/HeaderBox"]
@@ -985,7 +1052,7 @@ text = "Live Microphone Level:"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.95, 0.6, 1)
 theme_override_font_sizes/font_size = 13
-text = "🟢 Safe (Filtered)"
+text = "Safe (Filtered)"
 
 [node name="CalibProgressBar" type="ProgressBar" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/LiveMeterVBox" unique_id=987654324]
 custom_minimum_size = Vector2(0, 18)
@@ -1004,7 +1071,7 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_slide_btn_auto")
 theme_override_font_sizes/font_size = 13
-text = "🎙️ Auto-Detect Background Noise"
+text = "Auto-Detect Background Noise"
 
 [node name="AutoCalibStatus" type="Label" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox/AutoCalibVBox" unique_id=987654332]
 layout_mode = 2
@@ -1019,7 +1086,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.78, 0.9, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_slide_btn_secondary")
 theme_override_font_sizes/font_size = 11
-text = "⚙️ Manual Adjustments ▾"
+text = "Show Manual Adjustments"
 
 [node name="SlidersVBox" type="VBoxContainer" parent="MicCalibrationScreen/CenterContainer/MainCard/VBox" unique_id=987654335]
 visible = false
@@ -1092,7 +1159,7 @@ custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_slide_btn_primary")
 theme_override_font_sizes/font_size = 14
-text = "PROCEED ➔"
+text = "PROCEED"
 
 [node name="UpdateModal" type="ColorRect" parent="." unique_id=987654340]
 visible = false
@@ -1165,7 +1232,7 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/normal = SubResource("StyleBoxFlat_slide_btn_primary")
-text = "DOWNLOAD ➔"
+text = "DOWNLOAD"
 
 [node name="UpdateChecker" type="HTTPRequest" parent="." unique_id=987654344]
 timeout = 8.0
@@ -1200,7 +1267,9 @@ timeout = 8.0
 [connection signal="pressed" from="CenterContainer/VBoxContainer/LobbyPanel/LobbyButtonsBox/LeaveLobbyButton" to="." method="_on_leave_lobby_pressed"]
 [connection signal="item_selected" from="CenterContainer/VBoxContainer/OptionsPanel/VoiceBox/VoiceModeOption" to="." method="_on_voice_mode_selected"]
 [connection signal="toggled" from="CenterContainer/VBoxContainer/OptionsPanel/CrosshairBox/CrosshairCheck" to="." method="_on_crosshair_toggled"]
-[connection signal="item_selected" from="CenterContainer/VBoxContainer/OptionsPanel/TouchSizeBox/TouchSizeOption" to="." method="_on_touch_size_selected"]
+[connection signal="item_selected" from="CenterContainer/VBoxContainer/OptionsPanel/MobileSection/TouchSizeBox/TouchSizeOption" to="." method="_on_touch_size_selected"]
+[connection signal="item_selected" from="CenterContainer/VBoxContainer/OptionsPanel/WindowsSection/DisplayModeBox/DisplayModeOption" to="." method="_on_display_mode_selected"]
+[connection signal="toggled" from="CenterContainer/VBoxContainer/OptionsPanel/WindowsSection/VsyncBox/VsyncCheck" to="." method="_on_vsync_toggled"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/OptionsPanel/BackFromOptionsButton" to="." method="_on_back_pressed"]
 [connection signal="pressed" from="MatchSettingsModal/ModalCenter/ModalCard/ModalVBox/ModalDoneButton" to="." method="_on_modal_done_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/OptionsPanel/MicBox/CalibrateMicButton" to="." method="_on_calibrate_mic_button_pressed"]

@@ -1580,23 +1580,23 @@ func _update_noise_hud(delta: float) -> void:
 
 	var col: Color = Color(0.35, 0.72, 0.65, 0.7)  # Silent teal
 	var status_text := "SILENT"
-	var icon_text := "🔈"
+	var icon_text := "MIC"
 	var icon_col := Color(0.5, 0.6, 0.7, 0.6)
 
 	if noise_bar.value >= 68.0:
 		col = Color(1.0, 0.25, 0.2, 1.0)  # Alert Red / Danger
 		status_text = "LOUD!"
-		icon_text = "🔊"
+		icon_text = "MIC"
 		icon_col = Color(1.0, 0.35, 0.3, 1.0)
 	elif noise_bar.value >= 32.0:
 		col = Color(1.0, 0.82, 0.25, 0.95)  # Amber / Normal walking
 		status_text = "NORMAL"
-		icon_text = "🔊"
+		icon_text = "MIC"
 		icon_col = Color(0.95, 0.88, 0.45, 0.9)
 	elif noise_bar.value >= 10.0:
 		col = Color(0.55, 0.88, 0.45, 0.85)  # Soft Lime / Quiet
 		status_text = "QUIET"
-		icon_text = "🔉"
+		icon_text = "MIC"
 		icon_col = Color(0.65, 0.85, 0.6, 0.8)
 
 	noise_bar.modulate = col

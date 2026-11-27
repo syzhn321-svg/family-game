@@ -53,7 +53,11 @@ extends Control
 # Options UI nodes
 @onready var voice_mode_option: OptionButton = $CenterContainer/VBoxContainer/OptionsPanel/VoiceBox/VoiceModeOption
 @onready var crosshair_check: CheckBox = $CenterContainer/VBoxContainer/OptionsPanel/CrosshairBox/CrosshairCheck
-@onready var touch_size_option: OptionButton = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/TouchSizeBox/TouchSizeOption")
+@onready var mobile_section: Control = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/MobileSection")
+@onready var touch_size_option: OptionButton = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/MobileSection/TouchSizeBox/TouchSizeOption")
+@onready var windows_section: Control = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/WindowsSection")
+@onready var display_mode_option: OptionButton = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/WindowsSection/DisplayModeBox/DisplayModeOption")
+@onready var vsync_check: CheckBox = get_node_or_null("CenterContainer/VBoxContainer/OptionsPanel/WindowsSection/VsyncBox/VsyncCheck")
 
 # Lobby UI nodes
 @onready var lobby_title: Label = $CenterContainer/VBoxContainer/LobbyPanel/LobbyHeader/LobbyTitle
@@ -257,6 +261,24 @@ func _setup_default_values() -> void:
 				"Large": touch_size_option.select(2)
 				_: touch_size_option.select(0)
 
+		if display_mode_option:
+			display_mode_option.clear()
+			display_mode_option.add_item("Windowed", 0)
+			display_mode_option.add_item("Fullscreen", 1)
+			display_mode_option.add_item("Exclusive Fullscreen", 2)
+			var current_display: int = int(net.local_settings.get("display_mode", 0))
+			display_mode_option.select(clampi(current_display, 0, 2))
+			if not is_mobile:
+				_apply_display_mode(current_display)
+
+		if vsync_check:
+			var vsync_enabled: bool = bool(net.local_settings.get("vsync_enabled", true))
+			vsync_check.button_pressed = vsync_enabled
+			if not is_mobile:
+				_apply_vsync(vsync_enabled)
+
+		_update_platform_options_visibility()
+
 
 # --- Navigation Helpers ---
 func _hide_all_panels() -> void:
@@ -408,6 +430,7 @@ func _show_options_panel() -> void:
 	_hide_all_panels()
 	if main_subtitle:
 		main_subtitle.text = "CO-OP ESCAPE"
+	_update_platform_options_visibility()
 	options_panel.visible = true
 
 
@@ -648,6 +671,42 @@ func _on_touch_size_selected(index: int) -> void:
 			_: size_str = "Smallest"
 		net.local_settings["touch_size"] = size_str
 		net.save_local_settings()
+
+
+func _update_platform_options_visibility() -> void:
+	var is_mobile := OS.get_name() in ["Android", "iOS"] or OS.has_feature("android") or OS.has_feature("ios") or OS.has_feature("mobile")
+	if mobile_section:
+		mobile_section.visible = is_mobile
+	if windows_section:
+		windows_section.visible = not is_mobile
+
+
+func _apply_display_mode(mode_idx: int) -> void:
+	match mode_idx:
+		0: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+		1: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		2: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+		_: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+
+
+func _apply_vsync(enabled: bool) -> void:
+	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if enabled else DisplayServer.VSYNC_DISABLED)
+
+
+func _on_display_mode_selected(index: int) -> void:
+	var net := get_node_or_null("/root/NetworkManager")
+	if net:
+		net.local_settings["display_mode"] = index
+		net.save_local_settings()
+	_apply_display_mode(index)
+
+
+func _on_vsync_toggled(button_pressed: bool) -> void:
+	var net := get_node_or_null("/root/NetworkManager")
+	if net:
+		net.local_settings["vsync_enabled"] = button_pressed
+		net.save_local_settings()
+	_apply_vsync(button_pressed)
 
 
 func _on_paste_code_pressed() -> void:
@@ -897,16 +956,16 @@ func _update_lobby_ui() -> void:
 		lobby_ip_row.visible = false
 		lobby_online_label.visible = true
 		if net.is_webrtc_mode:
-			lobby_online_label.text = "● Online (Ready for squad)"
+			lobby_online_label.text = "Online (Ready for squad)"
 			lobby_online_label.add_theme_color_override("font_color", Color(0.4, 0.85, 0.6))
 		elif not net.upnp_external_ip.is_empty() and net.upnp_external_ip != "Online":
-			lobby_online_label.text = "● Online & LAN Ready (Port %d)" % net.DEFAULT_PORT
+			lobby_online_label.text = "Online & LAN Ready (Port %d)" % net.DEFAULT_PORT
 			lobby_online_label.add_theme_color_override("font_color", Color(0.4, 0.85, 0.6))
 		elif not net.upnp_status_message.is_empty():
-			lobby_online_label.text = "● %s" % net.upnp_status_message
+			lobby_online_label.text = "%s" % net.upnp_status_message
 			lobby_online_label.add_theme_color_override("font_color", Color(0.7, 0.75, 0.82))
 		else:
-			lobby_online_label.text = "● Ready (Port %d)" % net.DEFAULT_PORT
+			lobby_online_label.text = "Ready (Port %d)" % net.DEFAULT_PORT
 			lobby_online_label.add_theme_color_override("font_color", Color(0.4, 0.85, 0.6))
 	else:
 		if net.is_webrtc_mode:
@@ -914,7 +973,7 @@ func _update_lobby_ui() -> void:
 			lobby_code_label.text = "CONNECTING..."
 			lobby_ip_row.visible = false
 			lobby_online_label.visible = true
-			lobby_online_label.text = "● Connecting..."
+			lobby_online_label.text = "Connecting..."
 			lobby_online_label.add_theme_color_override("font_color", Color(0.9, 0.8, 0.45))
 		else:
 			lobby_code_row.visible = false
@@ -1202,14 +1261,10 @@ func _open_mic_calibration_screen(is_startup: bool = false) -> void:
 	if sliders_vbox:
 		sliders_vbox.visible = false
 	if manual_adjust_button:
-		manual_adjust_button.text = "⚙️ Manual Adjustments ▾"
+		manual_adjust_button.text = "Show Manual Adjustments"
 
-	if is_startup:
-		if save_calib_button:
-			save_calib_button.text = "PROCEED ➔"
-	else:
-		if save_calib_button:
-			save_calib_button.text = "PROCEED"
+	if save_calib_button:
+		save_calib_button.text = "PROCEED"
 
 	_setup_calib_microphone()
 	is_auto_calibrating = false
@@ -1218,7 +1273,7 @@ func _open_mic_calibration_screen(is_startup: bool = false) -> void:
 		calib_auto_status.add_theme_color_override("font_color", Color(0.6, 0.66, 0.76))
 	if calib_auto_button:
 		calib_auto_button.disabled = false
-		calib_auto_button.text = "🎙️ Auto-Detect Background Noise"
+		calib_auto_button.text = "Auto-Detect Background Noise"
 
 	if mic_calib_screen:
 		mic_calib_screen.visible = true
@@ -1299,7 +1354,7 @@ func _process_mic_calibration(delta: float) -> void:
 			is_auto_calibrating = false
 			if calib_auto_button:
 				calib_auto_button.disabled = false
-				calib_auto_button.text = "🎙️ Re-Detect Background Noise"
+				calib_auto_button.text = "Re-Detect Background Noise"
 			var avg_room := 0.0
 			for s in auto_calib_samples:
 				avg_room += s
@@ -1320,16 +1375,16 @@ func _process_mic_calibration(delta: float) -> void:
 
 	if calib_meter_status:
 		if rms < (thresh * 0.5):
-			calib_meter_status.text = "🟢 SAFE (Silent)"
+			calib_meter_status.text = "Safe (Silent)"
 			calib_meter_status.add_theme_color_override("font_color", Color(0.4, 0.95, 0.6))
 		elif rms < thresh:
-			calib_meter_status.text = "🟢 SAFE (Room Noise Filtered)"
+			calib_meter_status.text = "Safe (Filtered)"
 			calib_meter_status.add_theme_color_override("font_color", Color(0.5, 0.85, 0.7))
 		elif pct > 75.0:
-			calib_meter_status.text = "🔴 LOUD! (Alerting Entities!)"
+			calib_meter_status.text = "Loud (Alerts Entities)"
 			calib_meter_status.add_theme_color_override("font_color", Color(0.95, 0.45, 0.45))
 		else:
-			calib_meter_status.text = "🟡 TALKING (Voice Active)"
+			calib_meter_status.text = "Voice Detected"
 			calib_meter_status.add_theme_color_override("font_color", Color(0.95, 0.85, 0.4))
 
 
@@ -1371,9 +1426,9 @@ func _on_manual_adjust_button_pressed() -> void:
 	sliders_vbox.visible = not sliders_vbox.visible
 	if manual_adjust_button:
 		if sliders_vbox.visible:
-			manual_adjust_button.text = "⚙️ Manual Adjustments ▴"
+			manual_adjust_button.text = "Hide Manual Adjustments"
 		else:
-			manual_adjust_button.text = "⚙️ Manual Adjustments ▾"
+			manual_adjust_button.text = "Show Manual Adjustments"
 
 
 func _on_calib_threshold_changed(val: float) -> void:
@@ -1441,22 +1496,22 @@ func _check_for_updates(manual: bool = false) -> void:
 	var err := update_checker.request(GITHUB_RELEASES_URL, headers, HTTPClient.METHOD_GET)
 	if err != OK:
 		if manual and check_updates_button:
-			check_updates_button.text = "Could not reach GitHub ⚠️"
+			check_updates_button.text = "Could not reach server"
 			check_updates_button.disabled = false
 			get_tree().create_timer(3.0).timeout.connect(func():
 				if is_instance_valid(check_updates_button):
-					check_updates_button.text = "Check for Updates 🔄"
+					check_updates_button.text = "Check for Updates"
 			)
 
 
 func _on_update_checker_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
 		if is_manual_update_check and check_updates_button:
-			check_updates_button.text = "Could not check updates ⚠️"
+			check_updates_button.text = "Update check failed"
 			check_updates_button.disabled = false
 			get_tree().create_timer(3.0).timeout.connect(func():
 				if is_instance_valid(check_updates_button):
-					check_updates_button.text = "Check for Updates 🔄"
+					check_updates_button.text = "Check for Updates"
 			)
 		return
 
@@ -1496,7 +1551,7 @@ func _on_update_checker_request_completed(result: int, response_code: int, _head
 		
 		if is_manual_update_check:
 			if check_updates_button:
-				check_updates_button.text = "Update Found! ⬇️"
+				check_updates_button.text = "Update Available"
 				check_updates_button.disabled = false
 			_open_update_modal(remote_tag, target_url)
 		else:
@@ -1507,11 +1562,11 @@ func _on_update_checker_request_completed(result: int, response_code: int, _head
 				_open_update_modal(remote_tag, target_url)
 	else:
 		if is_manual_update_check and check_updates_button:
-			check_updates_button.text = "Up to date! (%s) ✅" % CURRENT_GAME_VERSION
+			check_updates_button.text = "Up to date (%s)" % CURRENT_GAME_VERSION
 			check_updates_button.disabled = false
 			get_tree().create_timer(3.0).timeout.connect(func():
 				if is_instance_valid(check_updates_button):
-					check_updates_button.text = "Check for Updates 🔄"
+					check_updates_button.text = "Check for Updates"
 			)
 
 
