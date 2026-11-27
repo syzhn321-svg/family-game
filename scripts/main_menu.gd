@@ -30,6 +30,7 @@ extends Control
 
 # Layout & Player Profile Nodes
 @onready var vbox_container: VBoxContainer = get_node_or_null("CenterContainer/VBoxContainer")
+@onready var desktop_title_box: Control = get_node_or_null("CenterContainer/VBoxContainer/TitleBox")
 @onready var player_name_card: Control = get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard")
 @onready var player_name_box: Control = get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox") if get_node_or_null("CenterContainer/VBoxContainer/PlayerNameCard/PlayerNameBox") != null else get_node_or_null("CenterContainer/VBoxContainer/PlayerNameBox")
 @onready var player_name_sep: HSeparator = get_node_or_null("CenterContainer/VBoxContainer/HSeparator")
@@ -37,19 +38,31 @@ extends Control
 @onready var multiplayer_button: Button = get_node_or_null("CenterContainer/VBoxContainer/MainButtons/MultiplayerButton")
 @onready var options_button: Button = get_node_or_null("CenterContainer/VBoxContainer/MainButtons/OptionsButton")
 @onready var quit_button: Button = get_node_or_null("CenterContainer/VBoxContainer/MainButtons/QuitButton")
-@onready var host_setup_title: Label = $CenterContainer/VBoxContainer/HostSetupPanel/HostSetupTitle
-@onready var host_setup_desc: Label = $CenterContainer/VBoxContainer/HostSetupPanel/HostSetupDesc
-@onready var game_mode_option: OptionButton = get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/GameModeBox/GameModeOption")
-@onready var lobby_name_input: LineEdit = $CenterContainer/VBoxContainer/HostSetupPanel/LobbyNameBox/LobbyNameInput
-@onready var max_players_option: OptionButton = $CenterContainer/VBoxContainer/HostSetupPanel/MaxPlayersBox/MaxPlayersOption
-@onready var host_info_label: Label = $CenterContainer/VBoxContainer/HostSetupPanel/HostInfoLabel
-@onready var start_host_button: Button = $CenterContainer/VBoxContainer/HostSetupPanel/StartHostButton
+
+# Mobile Dedicated Ergonomic Layout Nodes
+@onready var mobile_header: Control = get_node_or_null("MobileHeader")
+@onready var mobile_back_button: Button = get_node_or_null("MobileHeader/HeaderHBox/MobileBackButton")
+@onready var mobile_version_badge: Label = get_node_or_null("MobileHeader/HeaderHBox/MobileVersionBadge")
+@onready var mobile_main_layout: Control = get_node_or_null("MobileMainLayout")
+@onready var mobile_player_name_input: LineEdit = get_node_or_null("MobileMainLayout/SplitHBox/LeftDossier/MobileSurvivorCard/CardVBox/MobilePlayerNameInput")
+@onready var mobile_multiplayer_button: Button = get_node_or_null("MobileMainLayout/SplitHBox/RightActions/MobileMultiplayerButton")
+@onready var mobile_campaign_button: Button = get_node_or_null("MobileMainLayout/SplitHBox/RightActions/MobileCampaignButton")
+@onready var mobile_options_button: Button = get_node_or_null("MobileMainLayout/SplitHBox/RightActions/MobileOptionsButton")
+var force_mobile_layout: bool = false
+
+@onready var host_setup_title: Label = get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/HostSetupTitle")
+@onready var host_setup_desc: Label = get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/HostSetupDesc")
+@onready var game_mode_option: OptionButton = get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/RulesCapacityCard/RulesVBox/GameModeBox/GameModeOption") if get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/RulesCapacityCard/RulesVBox/GameModeBox/GameModeOption") != null else get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/GameModeBox/GameModeOption")
+@onready var lobby_name_input: LineEdit = get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/SessionIdentityCard/LobbyNameBox/LobbyNameInput") if get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/SessionIdentityCard/LobbyNameBox/LobbyNameInput") != null else get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/LobbyNameBox/LobbyNameInput")
+@onready var max_players_option: OptionButton = get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/RulesCapacityCard/RulesVBox/MaxPlayersBox/MaxPlayersOption") if get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/RulesCapacityCard/RulesVBox/MaxPlayersBox/MaxPlayersOption") != null else get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/MaxPlayersBox/MaxPlayersOption")
+@onready var host_info_label: Label = get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/HostInfoLabel")
+@onready var start_host_button: Button = get_node_or_null("CenterContainer/VBoxContainer/HostSetupPanel/StartHostButton")
 
 # Join Nodes
-@onready var room_code_input: LineEdit = $CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeRow/RoomCodeInput
-@onready var paste_code_button: Button = $CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeRow/PasteCodeButton
-@onready var join_room_code_button: Button = $CenterContainer/VBoxContainer/JoinRoomCodePanel/JoinRoomCodeButton
-@onready var room_code_status_label: Label = $CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeStatusLabel
+@onready var room_code_input: LineEdit = get_node_or_null("CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeCard/RoomCodeRow/RoomCodeInput") if get_node_or_null("CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeCard/RoomCodeRow/RoomCodeInput") != null else get_node_or_null("CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeRow/RoomCodeInput")
+@onready var paste_code_button: Button = get_node_or_null("CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeCard/RoomCodeRow/PasteCodeButton") if get_node_or_null("CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeCard/RoomCodeRow/PasteCodeButton") != null else get_node_or_null("CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeRow/PasteCodeButton")
+@onready var join_room_code_button: Button = get_node_or_null("CenterContainer/VBoxContainer/JoinRoomCodePanel/JoinRoomCodeButton")
+@onready var room_code_status_label: Label = get_node_or_null("CenterContainer/VBoxContainer/JoinRoomCodePanel/RoomCodeStatusLabel")
 
 @onready var searching_label: Label = $CenterContainer/VBoxContainer/JoinLanPanel/SearchingLabel
 @onready var lobby_list: VBoxContainer = $CenterContainer/VBoxContainer/JoinLanPanel/LobbyList
@@ -167,6 +180,19 @@ func _ready() -> void:
 	if copy_ip_button and not copy_ip_button.pressed.is_connected(_on_copy_ip_pressed):
 		copy_ip_button.pressed.connect(_on_copy_ip_pressed)
 
+	if mobile_back_button and not mobile_back_button.pressed.is_connected(_on_mobile_back_pressed):
+		mobile_back_button.pressed.connect(_on_mobile_back_pressed)
+	if mobile_multiplayer_button and not mobile_multiplayer_button.pressed.is_connected(_on_multiplayer_pressed):
+		mobile_multiplayer_button.pressed.connect(_on_multiplayer_pressed)
+	if mobile_campaign_button and not mobile_campaign_button.pressed.is_connected(_on_campaign_pressed):
+		mobile_campaign_button.pressed.connect(_on_campaign_pressed)
+	if mobile_options_button and not mobile_options_button.pressed.is_connected(_on_options_pressed):
+		mobile_options_button.pressed.connect(_on_options_pressed)
+	if mobile_player_name_input and not mobile_player_name_input.text_changed.is_connected(_on_mobile_name_changed):
+		mobile_player_name_input.text_changed.connect(_on_mobile_name_changed)
+	if player_name_input and not player_name_input.text_changed.is_connected(_on_pc_name_changed):
+		player_name_input.text_changed.connect(_on_pc_name_changed)
+
 	if update_version_label:
 		update_version_label.text = CURRENT_GAME_VERSION
 	_check_for_updates(false)
@@ -184,8 +210,12 @@ func _setup_default_values() -> void:
 	if sys_user.is_empty():
 		sys_user = "Player"
 	
-	player_name_input.text = sys_user
-	lobby_name_input.text = "%s's Session" % sys_user
+	if player_name_input:
+		player_name_input.text = sys_user
+	if mobile_player_name_input:
+		mobile_player_name_input.text = sys_user
+	if lobby_name_input:
+		lobby_name_input.text = "%s's Session" % sys_user
 	
 	# Game Mode options (Story Mode locked for now)
 	if game_mode_option:
@@ -237,7 +267,7 @@ func _setup_default_values() -> void:
 	max_players_option.select(2)  # Default 4 players
 
 	# Platform-tailored Voice Mode options & Layout
-	var is_mobile := OS.get_name() in ["Android", "iOS"] or OS.has_feature("android") or OS.has_feature("ios") or OS.has_feature("mobile")
+	var is_mobile := _is_mobile_platform()
 	if vbox_container:
 		if is_mobile:
 			vbox_container.custom_minimum_size = Vector2(680, 0)
@@ -293,6 +323,57 @@ func _setup_default_values() -> void:
 		_update_platform_options_visibility()
 
 
+func _on_mobile_name_changed(new_text: String) -> void:
+	if player_name_input and player_name_input.text != new_text:
+		player_name_input.text = new_text
+
+
+func _on_pc_name_changed(new_text: String) -> void:
+	if mobile_player_name_input and mobile_player_name_input.text != new_text:
+		mobile_player_name_input.text = new_text
+
+
+func _on_mobile_back_pressed() -> void:
+	if host_setup_panel and host_setup_panel.visible:
+		_on_back_to_multiplayer_pressed()
+	elif join_room_code_panel and join_room_code_panel.visible:
+		_on_back_to_join_methods_pressed()
+	elif join_lan_panel and join_lan_panel.visible:
+		_on_back_to_join_methods_pressed()
+	elif join_methods_panel and join_methods_panel.visible:
+		_on_back_to_multiplayer_pressed()
+	elif multiplayer_panel and multiplayer_panel.visible:
+		_show_main_buttons()
+	elif options_panel and options_panel.visible:
+		_show_main_buttons()
+	elif mic_calib_screen and mic_calib_screen.visible:
+		_on_save_calib_button_pressed()
+	elif campaign_panel and campaign_panel.visible:
+		_show_main_buttons()
+	elif lobby_panel and lobby_panel.visible:
+		_on_leave_lobby_pressed()
+	else:
+		_show_main_buttons()
+
+
+func _is_mobile_platform() -> bool:
+	if force_mobile_layout:
+		return true
+	return OS.get_name() in ["Android", "iOS"] or OS.has_feature("android") or OS.has_feature("ios") or OS.has_feature("mobile")
+
+
+func _update_subpanel_layout() -> void:
+	var is_mobile := _is_mobile_platform()
+	if is_mobile:
+		if mobile_header: mobile_header.visible = true
+		if mobile_back_button: mobile_back_button.visible = true
+		if vbox_container: vbox_container.custom_minimum_size = Vector2(680, 0)
+	else:
+		if mobile_header: mobile_header.visible = false
+		if mobile_back_button: mobile_back_button.visible = false
+		if vbox_container: vbox_container.custom_minimum_size = Vector2(520, 0)
+
+
 # --- Navigation Helpers ---
 func _set_player_name_visible(p_visible: bool) -> void:
 	if player_name_card:
@@ -306,6 +387,8 @@ func _set_player_name_visible(p_visible: bool) -> void:
 
 func _hide_all_panels() -> void:
 	main_buttons_container.visible = false
+	if mobile_main_layout: mobile_main_layout.visible = false
+	if desktop_title_box: desktop_title_box.visible = false
 	if campaign_panel: campaign_panel.visible = false
 	if multiplayer_panel: multiplayer_panel.visible = false
 	if host_setup_panel: host_setup_panel.visible = false
@@ -322,17 +405,51 @@ func _hide_all_panels() -> void:
 
 func _show_main_buttons() -> void:
 	_hide_all_panels()
-	main_buttons_container.visible = true
-	if main_subtitle:
-		main_subtitle.text = "CO-OP ESCAPE"
-	_set_player_name_visible(true)
-	if play_alone_button:
-		play_alone_button.disabled = true
-		play_alone_button.text = "CAMPAIGN\nSolo Story Mode (Coming Soon)"
-		play_alone_button.tooltip_text = "Campaign mode is currently in development."
-	if quit_button:
-		var is_mobile := OS.get_name() in ["Android", "iOS"] or OS.has_feature("android") or OS.has_feature("ios") or OS.has_feature("mobile")
-		quit_button.visible = not is_mobile
+	var is_mobile := _is_mobile_platform()
+	
+	if is_mobile:
+		# --- Mobile Presentation: Ergonomic Split Thumb Layout ---
+		if mobile_main_layout:
+			mobile_main_layout.visible = true
+		if mobile_header:
+			mobile_header.visible = true
+		if mobile_back_button:
+			mobile_back_button.visible = false
+		if desktop_title_box:
+			desktop_title_box.visible = false
+		if main_buttons_container:
+			main_buttons_container.visible = false
+		_set_player_name_visible(false)
+		if mobile_player_name_input and player_name_input:
+			mobile_player_name_input.text = player_name_input.text
+	else:
+		# --- Desktop Presentation: Restored Classic Horror Centered Look ---
+		if mobile_main_layout:
+			mobile_main_layout.visible = false
+		if mobile_header:
+			mobile_header.visible = false
+		if desktop_title_box:
+			desktop_title_box.visible = true
+		_set_player_name_visible(true)
+		if main_buttons_container:
+			main_buttons_container.visible = true
+		if vbox_container:
+			vbox_container.custom_minimum_size = Vector2(520, 0)
+		if multiplayer_button:
+			multiplayer_button.custom_minimum_size = Vector2(0, 44)
+			multiplayer_button.text = "MULTIPLAYER"
+		if play_alone_button:
+			play_alone_button.custom_minimum_size = Vector2(0, 44)
+			play_alone_button.disabled = true
+			play_alone_button.text = "CAMPAIGN (COMING SOON)"
+			play_alone_button.tooltip_text = "Campaign mode is currently in development."
+		if options_button:
+			options_button.custom_minimum_size = Vector2(0, 44)
+			options_button.text = "OPTIONS"
+		if quit_button:
+			quit_button.custom_minimum_size = Vector2(0, 38)
+			quit_button.visible = true
+			quit_button.text = "QUIT"
 
 	var net := get_node_or_null("/root/NetworkManager")
 	if net:
@@ -344,6 +461,7 @@ func _show_main_buttons() -> void:
 
 func _show_campaign_panel() -> void:
 	_hide_all_panels()
+	_update_subpanel_layout()
 	if main_subtitle:
 		main_subtitle.text = "CO-OP ESCAPE"
 	if campaign_panel:
@@ -387,6 +505,7 @@ func _show_campaign_panel() -> void:
 
 func _show_multiplayer_panel() -> void:
 	_hide_all_panels()
+	_update_subpanel_layout()
 	if main_subtitle:
 		main_subtitle.text = "CO-OP ESCAPE"
 	_set_player_name_visible(true)
@@ -395,6 +514,7 @@ func _show_multiplayer_panel() -> void:
 
 func _show_host_setup_panel() -> void:
 	_hide_all_panels()
+	_update_subpanel_layout()
 	if main_subtitle:
 		main_subtitle.text = "CO-OP ESCAPE"
 	# player_name_box and player_name_sep are not shown when creating lobby
@@ -420,23 +540,27 @@ func _on_game_mode_option_selected(_idx: int) -> void:
 
 func _show_join_methods_panel() -> void:
 	_hide_all_panels()
+	_update_subpanel_layout()
 	join_methods_panel.visible = true
 
 
 func _show_join_room_code_panel() -> void:
 	_hide_all_panels()
+	_update_subpanel_layout()
 	join_room_code_panel.visible = true
 	room_code_status_label.text = ""
 
 
 func _show_join_lan_panel() -> void:
 	_hide_all_panels()
+	_update_subpanel_layout()
 	join_lan_panel.visible = true
 	_refresh_lan_search()
 
 
 func _show_lobby_panel() -> void:
 	_hide_all_panels()
+	_update_subpanel_layout()
 	_set_player_name_visible(false)
 	lobby_panel.visible = true
 	var is_host := multiplayer.is_server()
@@ -446,6 +570,7 @@ func _show_lobby_panel() -> void:
 
 func _show_options_panel() -> void:
 	_hide_all_panels()
+	_update_subpanel_layout()
 	if main_subtitle:
 		main_subtitle.text = "CO-OP ESCAPE"
 	_update_platform_options_visibility()
@@ -692,7 +817,7 @@ func _on_touch_size_selected(index: int) -> void:
 
 
 func _update_platform_options_visibility() -> void:
-	var is_mobile := OS.get_name() in ["Android", "iOS"] or OS.has_feature("android") or OS.has_feature("ios") or OS.has_feature("mobile")
+	var is_mobile := _is_mobile_platform()
 	if mobile_section:
 		mobile_section.visible = is_mobile
 	if windows_section:
@@ -1255,6 +1380,7 @@ func _on_server_disconnected() -> void:
 func _open_mic_calibration_screen(is_startup: bool = false) -> void:
 	is_calib_opened_from_options = not is_startup
 	_hide_all_panels()
+	_update_subpanel_layout()
 	if main_subtitle:
 		main_subtitle.text = "CO-OP ESCAPE"
 	_set_player_name_visible(false)
